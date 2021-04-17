@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="calliostro_discogs.discogs_client" class="Discogs\DiscogsClient" public="true">
+            <factory class="Discogs\ClientFactory" method="factory" />
+            <argument />
+        </service>
+        <service id="calliostro_discogs.throttle_subscriber" class="Discogs\Subscriber\ThrottleSubscriber" public="false">
+            <argument />
+        </service>
+        <service id="calliostro_discogs.throttle_handler_stack" class="GuzzleHttp\HandlerStack" public="false">
+            <factory class="Calliostro\DiscogsBundle\ThrottleHandlerStackFactory" method="factory" />
+            <argument />
+        </service>
+
+        <service id="Discogs\DiscogsClient" alias="calliostro_discogs.discogs_client" public="false" />
+    </services>
+</container>

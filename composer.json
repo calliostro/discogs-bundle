@@ -1,31 +1,47 @@
 {
-    "name": "ricbra/discogs-bundle",
-    "description": "Bundle around the Discogs API client",
+    "name": "calliostro/discogs-bundle",
+    "description": "Bundle around the Discogs API client for Symfony 5.0",
     "type": "symfony-bundle",
     "keywords": ["discogs", "api"],
-    "homepage": "https://github.com/ricbra/RicbraDiscogsBundle",
+    "homepage": "https://github.com/calliostro/CalliostroDiscogsBundle",
     "license": "MIT",
     "authors": [
         {
             "name": "Richard van den Brand",
             "email": "richard@vandenbrand.org"
+        },
+        {
+            "name": "calliostro",
+            "email": "calliostro@gmail.com"
         }
     ],
     "require": {
-        "ricbra/php-discogs-api": "^1.0"
+        "php": ">=7.3",
+        "calliostro/php-discogs-api": "^2.0.1",
+        "symfony/config": "^5.0",
+        "symfony/dependency-injection": "^5.0",
+        "symfony/http-kernel": "^5.0",
+        "symfony/security-bundle": "^5.0"
     },
-    "target-dir": "Ricbra/Bundle/DiscogsBundle",
+    "require-dev": {
+        "symfony/phpunit-bridge": "^5.2"
+    },
     "autoload": {
-        "psr-0": {
-            "Ricbra\\Bundle\\DiscogsBundle": ""
+        "psr-4": {
+            "Calliostro\\DiscogsBundle\\": "src\\"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Calliostro\\DiscogsBundle\\Tests\\": "tests\\"
         }
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0.x-dev"
+            "dev-master": "2.0.x-dev"
         }
     },
     "suggest": {
-        "hwi/oauth-bundle": "Enable OAuth support using HWIOAuthBundle"
+        "hwi/HWIOAuthBundle": "Enable OAuth support using HWIOAuthBundle"
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Ricbra\Bundle\DiscogsBundle\DependencyInjection;
+namespace Calliostro\DiscogsBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -8,21 +8,21 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 /**
  * This is the class that validates and merges configuration from your app/config files
  *
- * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
+ * To learn more see {@link https://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
  */
 class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritDoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('ricbra_discogs');
+        $treeBuilder = new TreeBuilder('calliostro_discogs');
+        $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
                 ->scalarNode('user_agent')
-                    ->defaultValue('RicBraDiscogsBundle/1.0 +https://github.com/ricbra/php-discogs-api')
+                    ->defaultValue('CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/php-discogs-api')
                 ->end()
                 ->arrayNode('throttle')
                     ->addDefaultsIfNotSet()
@@ -43,18 +43,18 @@ class Configuration implements ConfigurationInterface
                         ->end()
                         ->scalarNode('consumer_key')->end()
                         ->scalarNode('consumer_secret')->end()
-                        ->scalarNode('token_provider_id')->end()
+                        ->scalarNode('token_provider')->defaultValue('calliostro_discogs.hwi_oauth_token_provider')->end()
                     ->end()
                     ->validate()
                         ->ifTrue(function($a) {
                             $enabled = $a['enabled'];
                             $key = isset($a['consumer_key']) && $a['consumer_key'];
                             $secret = isset($a['consumer_secret']) && $a['consumer_secret'];
-                            $token = isset($a['token_provider_id']) && $a['token_provider_id'];
+                            $token = isset($a['token_provider']) && $a['token_provider'];
 
                             return $enabled && (! $key || ! $secret || ! $token);
                         })
-                        ->thenInvalid('The option "ricbra_discogs.oauth.consumer_key", "ricbra_discogs.oauth.consumer_secret" and "ricbra_discogs.oauth.token_provider_id" are required')
+                        ->thenInvalid('The option "calliostro_discogs.oauth.consumer_key", "calliostro_discogs.oauth.consumer_secret" and "calliostro_discogs.oauth.token_provider" are required')
                     ->end()
                 ->end()
             ->end()
