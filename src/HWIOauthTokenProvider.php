@@ -26,7 +26,10 @@ class HWIOauthTokenProvider implements OAuthTokenProviderInterface
     private function getRawToken($name): string
     {
         // getToken() must be a HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\AbstractOAuthToken
-        if (method_exists($this->tokenStorage->getToken(), 'getRawToken')) {
+        if (
+            !is_null($this->tokenStorage->getToken()) &&
+            method_exists($this->tokenStorage->getToken(), 'getRawToken')
+        ) {
             /** @noinspection PhpUndefinedMethodInspection */
             $token = $this->tokenStorage->getToken()->getRawToken();
 
