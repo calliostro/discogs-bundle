@@ -22,7 +22,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('user_agent')
-                    ->defaultValue('CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/php-discogs-api')
+                    ->defaultValue('CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/discogs-bundle')
                 ->end()
                 ->arrayNode('throttle')
                     ->addDefaultsIfNotSet()
