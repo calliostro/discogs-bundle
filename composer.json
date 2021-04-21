@@ -1,6 +1,6 @@
 {
     "name": "calliostro/discogs-bundle",
-    "description": "Bundle around the Discogs API client for Symfony 5.0",
+    "description": "Bundle around the Discogs API client for PHP >=7.3 and Symfony 5.0",
     "type": "symfony-bundle",
     "keywords": ["discogs", "api"],
     "homepage": "https://github.com/calliostro/CalliostroDiscogsBundle",

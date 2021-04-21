@@ -5,8 +5,9 @@ Discogs Bundle
 [![Version](https://poser.pugx.org/calliostro/discogs-bundle/version)](//packagist.org/packages/calliostro/discogs-bundle)
 [![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](//packagist.org/packages/calliostro/discogs-bundle)
 
-This bundle provides a simple integration of the "[Discogs library](https://github.com/calliostro/php-discogs-api)" into
-Symfony 5. You can find more information about this library on its dedicated page at https://www.discogs.com/developers.
+This bundle provides a simple integration of the
+[calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 5. You can find more 
+information about this library on its dedicated page at https://www.discogs.com/developers.
 
 
 Installation
@@ -87,7 +88,7 @@ For configuration create a new `config/packages/calliostro_discogs.yaml` file. T
 # config/packages/calliostro_discogs.yaml
 calliostro_discogs:
 
-    user_agent: 'CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/php-discogs-api'
+    user_agent: 'CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/discogs-bundle'
 
     throttle:
         enabled: true
@@ -100,18 +101,27 @@ calliostro_discogs:
         token_provider: calliostro_discogs.hwi_oauth_token_provider
 ```
 
+### Client Credentials
+
 To access protected endpoints and get a higher rate limit, you must enable OAuth. For this, you must register for at 
-least `consumer_key` and `consumer_secret`. To access current user information, you also need a user token. Discogs
-supports only OAuth 1.0a for user authorization. You should use a third-party library for this. This bundle provides
-support for [hwi/HWIOAuthBundle](https://github.com/hwi/HWIOAuthBundle). The `token_provider` does not need to be 
-changed in configuration file if you use the HWIOAuthBundle. You find an example in 
-[calliostro/discogs-bundle-demo](https://github.com/calliostro/discogs-bundle-demo).
+least `consumer_key` and `consumer_secret` at https://www.discogs.com/de/applications/edit.
+
+### User Authorization
+
+To access current user information, you also need a user token. Discogs supports only OAuth 1.0a for user authorization.
+You should use a  third-party library for this. This bundle provides support for
+[hwi/HWIOAuthBundle](https://github.com/hwi/HWIOAuthBundle). The `token_provider` does not need to be changed in 
+configuration file if you use the HWIOAuthBundle. 
 
 
 Documentation
 -------------
 
+See [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) for documentation of the Discogs Client.
+
 Further documentation can be found at the [Discogs API v2.0 Documentation](https://www.discogs.com/developers).
+
+You find an example in [calliostro/discogs-bundle-demo](https://github.com/calliostro/discogs-bundle-demo).
 
 
 Contributing
