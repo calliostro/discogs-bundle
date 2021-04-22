@@ -36,11 +36,6 @@
             "Calliostro\\DiscogsBundle\\Tests\\": "tests\\"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.0.x-dev"
-        }
-    },
     "suggest": {
         "hwi/HWIOAuthBundle": "Enable OAuth support using HWIOAuthBundle"
     }
