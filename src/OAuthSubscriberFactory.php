@@ -4,7 +4,7 @@ namespace Calliostro\DiscogsBundle;
 
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 
-class OAuthSubscriberFactory
+final class OAuthSubscriberFactory
 {
     public static function factory(
         OAuthTokenProviderInterface $provider,

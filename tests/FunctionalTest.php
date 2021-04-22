@@ -35,7 +35,7 @@ class FunctionalTest extends TestCase
     }
 }
 
-class CalliostroDiscogsTestingKernel extends Kernel
+final class CalliostroDiscogsTestingKernel extends Kernel
 {
     private $calliostroDiscogsConfig;
 

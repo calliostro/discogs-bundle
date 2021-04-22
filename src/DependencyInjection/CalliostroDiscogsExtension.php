@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Loader;
  *
  * To learn more see {@link https://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class CalliostroDiscogsExtension extends Extension
+final class CalliostroDiscogsExtension extends Extension
 {
     /**
      * {@inheritDoc}

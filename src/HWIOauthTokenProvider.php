@@ -4,7 +4,7 @@ namespace Calliostro\DiscogsBundle;
 
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class HWIOauthTokenProvider implements OAuthTokenProviderInterface
+final class HWIOauthTokenProvider implements OAuthTokenProviderInterface
 {
     private $tokenStorage;
 

@@ -4,6 +4,6 @@ namespace Calliostro\DiscogsBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class CalliostroDiscogsBundle extends Bundle
+final class CalliostroDiscogsBundle extends Bundle
 {
 }

@@ -6,7 +6,7 @@ use Discogs\Subscriber\ThrottleSubscriber;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 
-class ThrottleHandlerStackFactory
+final class ThrottleHandlerStackFactory
 {
     public static function factory(?ThrottleSubscriber $subscriber): HandlerStack
     {

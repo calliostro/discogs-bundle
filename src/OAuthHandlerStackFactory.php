@@ -5,7 +5,7 @@ namespace Calliostro\DiscogsBundle;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 
-class OAuthHandlerStackFactory
+final class OAuthHandlerStackFactory
 {
     public static function factory(?Oauth1 $oauth): HandlerStack
     {
