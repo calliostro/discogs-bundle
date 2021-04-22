@@ -88,18 +88,26 @@ For configuration create a new `config/packages/calliostro_discogs.yaml` file. T
 # config/packages/calliostro_discogs.yaml
 calliostro_discogs:
 
-    user_agent: 'CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/discogs-bundle'
+  # Freely selectable and valid HTTP user agent identification (required)
+  user_agent: 'CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/discogs-bundle'
 
-    consumer_key: ~
-    consumer_secret: ~
+  # Your consumer key (recommended)
+  consumer_key: ~
 
-    throttle:
-        enabled: true
-        microseconds: 1000000
+  # Your consumer secret (recommended)
+  consumer_secret: ~
 
-    oauth:
-        enabled: false
-        token_provider: calliostro_discogs.hwi_oauth_token_provider
+  throttle:
+    # If activated, a new attempt is made later when the rate limit is reached
+    enabled: true
+    # Number of milliseconds to wait until the next attempt when the rate limit is reached
+    microseconds: 1000000
+
+  oauth:
+    # If enabled, full OAuth 1.0a with access token/secret is used
+    enabled: false
+    # You can create a service implementing OAuthTokenProviderInterface (HWIOAuthBundle is supported by default)
+    token_provider: calliostro_discogs.hwi_oauth_token_provider
 ```
 
 ### Client Credentials
