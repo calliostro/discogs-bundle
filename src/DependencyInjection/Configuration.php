@@ -24,6 +24,8 @@ final class Configuration implements ConfigurationInterface
                 ->scalarNode('user_agent')
                     ->defaultValue('CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/discogs-bundle')
                 ->end()
+                ->scalarNode('consumer_key')->end()
+                ->scalarNode('consumer_secret')->end()
                 ->arrayNode('throttle')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -41,22 +43,22 @@ final class Configuration implements ConfigurationInterface
                         ->booleanNode('enabled')
                             ->defaultFalse()
                         ->end()
-                        ->scalarNode('consumer_key')->end()
-                        ->scalarNode('consumer_secret')->end()
-                        ->scalarNode('token_provider')->defaultValue('calliostro_discogs.hwi_oauth_token_provider')->end()
-                    ->end()
-                    ->validate()
-                        ->ifTrue(function($a) {
-                            $enabled = $a['enabled'];
-                            $key = isset($a['consumer_key']) && $a['consumer_key'];
-                            $secret = isset($a['consumer_secret']) && $a['consumer_secret'];
-                            $token = isset($a['token_provider']) && $a['token_provider'];
-
-                            return $enabled && (! $key || ! $secret || ! $token);
-                        })
-                        ->thenInvalid('The option "calliostro_discogs.oauth.consumer_key", "calliostro_discogs.oauth.consumer_secret" and "calliostro_discogs.oauth.token_provider" are required')
+                        ->scalarNode('token_provider')
+                            ->defaultValue('calliostro_discogs.hwi_oauth_token_provider')
+                        ->end()
                     ->end()
                 ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(function($a) {
+                    $enabled = $a['oauth']['enabled'];
+                    $key = isset($a['consumer_key']) && $a['consumer_key'];
+                    $secret = isset($a['consumer_secret']) && $a['consumer_secret'];
+                    $token = isset($a['oauth']['token_provider']) && $a['oauth']['token_provider'];
+
+                    return $enabled && (! $key || ! $secret || ! $token);
+                })
+                ->thenInvalid('The option "calliostro_discogs.consumer_key", "calliostro_discogs.consumer_secret" and "calliostro_discogs.oauth.token_provider" are required')
             ->end()
         ;
 

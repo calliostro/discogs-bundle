@@ -90,14 +90,15 @@ calliostro_discogs:
 
     user_agent: 'CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/discogs-bundle'
 
+    consumer_key: ~
+    consumer_secret: ~
+
     throttle:
         enabled: true
         microseconds: 1000000
 
     oauth:
         enabled: false
-        consumer_key: ~
-        consumer_secret: ~
         token_provider: calliostro_discogs.hwi_oauth_token_provider
 ```
 

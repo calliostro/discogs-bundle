@@ -45,13 +45,17 @@ final class CalliostroDiscogsExtension extends Extension
 
             $subscriber = $container->getDefinition('calliostro_discogs.subscriber.oauth');
             $subscriber->replaceArgument(0, new Reference($config['oauth']['token_provider']));
-            $subscriber->replaceArgument(1, $config['oauth']['consumer_key']);
-            $subscriber->replaceArgument(2, $config['oauth']['consumer_secret']);
+            $subscriber->replaceArgument(1, $config['consumer_key']);
+            $subscriber->replaceArgument(2, $config['consumer_secret']);
 
             $oauthHandlerDefinition = $container->getDefinition('calliostro_discogs.oauth_handler_stack');
             $oauthHandlerDefinition->replaceArgument(0, new Reference('calliostro_discogs.subscriber.oauth'));
 
             $params['handler'] = new Reference('calliostro_discogs.oauth_handler_stack');
+        } else {
+            if (isset($config['consumer_key']) && isset($config['consumer_secret'])) {
+                $params['headers']['Authorization'] = 'Discogs key=' . $config['consumer_key'] . ', secret=' . $config['consumer_secret'];
+            }
         }
 
         $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
