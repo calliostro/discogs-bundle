@@ -60,7 +60,7 @@ final class CalliostroDiscogsTestingKernel extends Kernel
         });
     }
 
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         return $this->getProjectDir() . '/var/cache/'.$this->environment.'/'.spl_object_hash($this);
     }

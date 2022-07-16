@@ -1,12 +1,12 @@
 Discogs Bundle
 ==============
 
-[![Build Status](https://api.travis-ci.com/calliostro/discogs-bundle.svg)](https://www.travis-ci.com/github/calliostro/discogs-bundle)
+[![Build Status](https://api.travis-ci.com/calliostro/discogs-bundle.svg)](https://app.travis-ci.com/github/calliostro/discogs-bundle)
 [![Version](https://poser.pugx.org/calliostro/discogs-bundle/version)](//packagist.org/packages/calliostro/discogs-bundle)
 [![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](//packagist.org/packages/calliostro/discogs-bundle)
 
 This bundle provides a simple integration of the
-[calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 5. You can find more 
+[calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 5 or 6. You can find more 
 information about this library on its dedicated page at https://www.discogs.com/developers.
 
 
