@@ -8,7 +8,7 @@ use GuzzleHttp\Middleware;
 
 final class ThrottleHandlerStackFactory
 {
-    public static function factory(?ThrottleSubscriber $subscriber): HandlerStack
+    public static function factory(ThrottleSubscriber|null $subscriber): HandlerStack
     {
         $handler = HandlerStack::create();
 

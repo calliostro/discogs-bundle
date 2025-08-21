@@ -15,9 +15,6 @@ use Symfony\Component\DependencyInjection\Loader;
  */
 final class CalliostroDiscogsExtension extends Extension
 {
-    /**
-     * {@inheritDoc}
-     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
@@ -30,16 +27,30 @@ final class CalliostroDiscogsExtension extends Extension
             'headers' => ['User-Agent' => $config['user_agent']]
         ];
 
-        if ($config['throttle']['enabled']) {
-            $throttleDefinition = $container->getDefinition('calliostro_discogs.throttle_subscriber');
-            $throttleDefinition->replaceArgument(0, $config['throttle']['microseconds']);
+        $this->configureThrottling($container, $config, $params);
+        $this->configureOAuth($container, $config, $params, $loader);
 
-            $throttleHandlerDefinition = $container->getDefinition('calliostro_discogs.throttle_handler_stack');
-            $throttleHandlerDefinition->replaceArgument(0, new Reference('calliostro_discogs.throttle_subscriber'));
+        $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
+        $clientDefinition->replaceArgument(0, $params);
+    }
 
-            $params['handler'] = new Reference('calliostro_discogs.throttle_handler_stack');
+    private function configureThrottling(ContainerBuilder $container, array $config, array &$params): void
+    {
+        if (!$config['throttle']['enabled']) {
+            return;
         }
 
+        $throttleDefinition = $container->getDefinition('calliostro_discogs.throttle_subscriber');
+        $throttleDefinition->replaceArgument(0, $config['throttle']['microseconds']);
+
+        $throttleHandlerDefinition = $container->getDefinition('calliostro_discogs.throttle_handler_stack');
+        $throttleHandlerDefinition->replaceArgument(0, new Reference('calliostro_discogs.throttle_subscriber'));
+
+        $params['handler'] = new Reference('calliostro_discogs.throttle_handler_stack');
+    }
+
+    private function configureOAuth(ContainerBuilder $container, array $config, array &$params, Loader\XmlFileLoader $loader): void
+    {
         if ($config['oauth']['enabled']) {
             $loader->load('oauth.xml');
 
@@ -52,13 +63,12 @@ final class CalliostroDiscogsExtension extends Extension
             $oauthHandlerDefinition->replaceArgument(0, new Reference('calliostro_discogs.subscriber.oauth'));
 
             $params['handler'] = new Reference('calliostro_discogs.oauth_handler_stack');
-        } else {
-            if (isset($config['consumer_key']) && isset($config['consumer_secret'])) {
-                $params['headers']['Authorization'] = 'Discogs key=' . $config['consumer_key'] . ', secret=' . $config['consumer_secret'];
-            }
+        } elseif (isset($config['consumer_key'], $config['consumer_secret'])) {
+            $params['headers']['Authorization'] = sprintf(
+                'Discogs key=%s, secret=%s', 
+                $config['consumer_key'], 
+                $config['consumer_secret']
+            );
         }
-
-        $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
-        $clientDefinition->replaceArgument(0, $params);
     }
 }

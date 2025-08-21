@@ -6,11 +6,8 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 final class HWIOauthTokenProvider implements OAuthTokenProviderInterface
 {
-    private $tokenStorage;
-
-    public function __construct(TokenStorageInterface $tokenStorage)
+    public function __construct(public readonly TokenStorageInterface $tokenStorage)
     {
-        $this->tokenStorage = $tokenStorage;
     }
 
     public function getToken(): string
@@ -23,17 +20,15 @@ final class HWIOauthTokenProvider implements OAuthTokenProviderInterface
         return $this->getRawToken('oauth_token_secret');
     }
 
-    private function getRawToken($name): string
+    private function getRawToken(string $name): string
     {
         // getToken() must be a HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\AbstractOAuthToken
-        if (
-            !is_null($this->tokenStorage->getToken()) &&
-            method_exists($this->tokenStorage->getToken(), 'getRawToken')
-        ) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $token = $this->tokenStorage->getToken()->getRawToken();
-
-            return $token[$name];
+        $token = $this->tokenStorage->getToken();
+        
+        if ($token !== null && method_exists($token, 'getRawToken')) {
+            /** @var mixed $token */
+            $rawToken = $token->getRawToken();
+            return $rawToken[$name] ?? '';
         }
 
         return '';

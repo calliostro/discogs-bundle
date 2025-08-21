@@ -6,141 +6,141 @@ Discogs Bundle
 [![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](//packagist.org/packages/calliostro/discogs-bundle)
 
 This bundle provides a simple integration of the
-[calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 5 or 6. You can find more 
-information about this library on its dedicated page at https://www.discogs.com/developers.
+[calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4+ and Symfony 7. 
 
+For more information about the Discogs API, visit https://www.discogs.com/developers.
 
-Installation
-------------
+## Requirements
 
-Make sure Composer is installed globally, as explained in the
-[installation chapter](https://getcomposer.org/doc/00-intro.md)
-of the Composer documentation.
+- **PHP**: 8.1 or higher
+- **Symfony**: 6.4 or 7.x
 
-### Applications that use Symfony Flex
+## Installation
 
-Open a command console, enter your project directory and execute:
+### Applications using Symfony Flex
 
 ```console
-$ composer require calliostro/discogs-bundle
+composer require calliostro/discogs-bundle
 ```
 
-### Applications that don't use Symfony Flex
+### Applications not using Symfony Flex
 
-#### Step 1: Download the Bundle
-
-Open a command console, enter your project directory and execute the
-following command to download the latest stable version of this bundle:
+#### Step 1: Install the Bundle
 
 ```console
-$ composer require calliostro/discogs-bundle
+composer require calliostro/discogs-bundle
 ```
 
-#### Step 2: Enable the Bundle
+#### Step 2: Register the Bundle
 
-Then, enable the bundle by adding it to the list of registered bundles
-in the `config/bundles.php` file of your project:
+Add the bundle to `config/bundles.php`:
 
 ```php
 // config/bundles.php
-
 return [
     // ...
     Calliostro\DiscogsBundle\CalliostroDiscogsBundle::class => ['all' => true],
 ];
 ```
 
+## Usage
 
-Usage
------
-
-This bundle provides a single service for communication with Discogs API, which you can autowire by using the `Discogs` 
-type-hint:
+The bundle provides a `DiscogsClient` service that can be autowired:
 
 ```php
-// src/Controller/SomeController.php
-
+// src/Controller/MusicController.php
 use Discogs\DiscogsClient;
-// ...
 
-class SomeController
+class MusicController
 {
-    public function index(DiscogsClient $discogs)
+    public function getArtist(DiscogsClient $discogs): Response
     {
-        $artist = $discogs->getArtist([
-            'id' => 8760,
+        $artist = $discogs->getArtist(['id' => 8760]);
+        
+        return new JsonResponse([
+            'name' => $artist['name'],
+            'profile' => $artist['profile'] ?? null,
         ]);
-
-        echo $artist['name'];
-
-        // ...
     }
 }
 ```
 
+## Configuration
 
-Configuration
--------------
-
-For configuration create a new `config/packages/calliostro_discogs.yaml` file. The default values are:
+Create `config/packages/calliostro_discogs.yaml`:
 
 ```yaml
 # config/packages/calliostro_discogs.yaml
 calliostro_discogs:
+  # Required: HTTP User-Agent header for API requests
+  user_agent: 'MyApp/1.0 +https://myapp.com'
 
-  # Freely selectable and valid HTTP user agent identification (required)
-  user_agent: 'CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/discogs-bundle'
-
-  # Your consumer key (recommended)
+  # Recommended: Your application credentials from discogs.com/applications
   consumer_key: ~
-
-  # Your consumer secret (recommended)
   consumer_secret: ~
 
+  # Rate limiting configuration
   throttle:
-    # If activated, a new attempt is made later when the rate limit is reached
     enabled: true
-    # Number of milliseconds to wait until the next attempt when the rate limit is reached
-    microseconds: 1000000
+    microseconds: 1000000  # Wait time when rate limit is hit
 
+  # OAuth 1.0a authentication (for user-specific data)
   oauth:
-    # If enabled, full OAuth 1.0a with access token/secret is used
     enabled: false
-    # You can create a service implementing OAuthTokenProviderInterface (HWIOAuthBundle is supported by default)
     token_provider: calliostro_discogs.hwi_oauth_token_provider
 ```
 
-### Client Credentials
+### Authentication
 
-To access protected endpoints and get a higher rate limit, you must enable OAuth. For this, you must register for at 
-least `consumer_key` and `consumer_secret` at https://www.discogs.com/de/applications/edit.
+#### Basic Authentication (Recommended)
+Register your application at https://www.discogs.com/applications to get:
+- `consumer_key`
+- `consumer_secret`
 
-### User Authorization
+This enables access to protected endpoints and higher rate limits.
 
-To access current user information, you also need a user token. Discogs supports only OAuth 1.0a for user authorization.
-You should use a  third-party library for this. This bundle provides support for
-[hwi/HWIOAuthBundle](https://github.com/hwi/HWIOAuthBundle). The `token_provider` does not need to be changed in 
-configuration file if you use the HWIOAuthBundle. 
+#### OAuth 1.0a (Optional)
+For user-specific data access, OAuth 1.0a is required. This bundle includes support for [HWIOAuthBundle](https://github.com/hwi/HWIOAuthBundle):
 
+```yaml
+# config/packages/calliostro_discogs.yaml
+calliostro_discogs:
+  oauth:
+    enabled: true
+    # token_provider: calliostro_discogs.hwi_oauth_token_provider  # Default, no need to specify
+```
 
-Documentation
--------------
+### Custom Token Provider
 
-See [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) for documentation of the Discogs Client.
+Implement `OAuthTokenProviderInterface` for custom OAuth token handling:
 
-Further documentation can be found at the [Discogs API v2.0 Documentation](https://www.discogs.com/developers).
+```php
+use Calliostro\DiscogsBundle\OAuthTokenProviderInterface;
 
-You find an example in [calliostro/discogs-bundle-demo](https://github.com/calliostro/discogs-bundle-demo).
+class CustomTokenProvider implements OAuthTokenProviderInterface
+{
+    public function getToken(): string
+    {
+        // Return OAuth token
+    }
 
+    public function getTokenSecret(): string  
+    {
+        // Return OAuth token secret
+    }
+}
+```
 
-Contributing
-------------
+## Documentation
 
-Implemented a missing feature? You can request it. And creating a pull request is an even better way to get things done.
+- **API Client**: See [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api)
+- **Discogs API**: [Official Documentation](https://www.discogs.com/developers)
+- **Example Application**: [discogs-bundle-demo](https://github.com/calliostro/discogs-bundle-demo)
 
+## Contributing
 
-See also
---------
+Found a bug or missing feature? Please [create an issue](https://github.com/calliostro/discogs-bundle/issues) or submit a pull request.
 
-For the integration of Discogs into Symfony 2, see 
-[ricbra/RicbraDiscogsBundle](https://github.com/ricbra/RicbraDiscogsBundle), which this is based on.
+## Credits
+
+This bundle is based on [ricbra/RicbraDiscogsBundle](https://github.com/ricbra/RicbraDiscogsBundle) for Symfony 2.

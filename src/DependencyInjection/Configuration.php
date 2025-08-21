@@ -12,9 +12,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 final class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritDoc}
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('calliostro_discogs');
@@ -59,15 +56,15 @@ final class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
             ->validate()
-                ->ifTrue(function($a) {
-                    $enabled = $a['oauth']['enabled'];
-                    $key = isset($a['consumer_key']) && $a['consumer_key'];
-                    $secret = isset($a['consumer_secret']) && $a['consumer_secret'];
-                    $token = isset($a['oauth']['token_provider']) && $a['oauth']['token_provider'];
+                ->ifTrue(function (array $config): bool {
+                    $oauthEnabled = $config['oauth']['enabled'];
+                    $hasConsumerKey = !empty($config['consumer_key']);
+                    $hasConsumerSecret = !empty($config['consumer_secret']);
+                    $hasTokenProvider = !empty($config['oauth']['token_provider']);
 
-                    return $enabled && (! $key || ! $secret || ! $token);
+                    return $oauthEnabled && (!$hasConsumerKey || !$hasConsumerSecret || !$hasTokenProvider);
                 })
-                ->thenInvalid('The option "calliostro_discogs.consumer_key", "calliostro_discogs.consumer_secret" and "calliostro_discogs.oauth.token_provider" are required')
+                ->thenInvalid('OAuth requires consumer_key, consumer_secret, and oauth.token_provider to be configured')
             ->end()
         ;
 
