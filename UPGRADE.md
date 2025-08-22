@@ -67,6 +67,6 @@ Check the updated README.md for modern examples and best practices.
 
 ---
 
-**Need Help?** 
+**Need Help?**
 - [Create an issue](https://github.com/calliostro/discogs-bundle/issues) if you encounter problems
 - [Check the documentation](https://github.com/calliostro/discogs-bundle#readme) for updated examples

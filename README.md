@@ -6,7 +6,7 @@ Discogs Bundle
 [![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](//packagist.org/packages/calliostro/discogs-bundle)
 
 This bundle provides a simple integration of the
-[calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4+ and Symfony 7. 
+[calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4+ and Symfony 7.
 
 For more information about the Discogs API, visit https://www.discogs.com/developers.
 
@@ -56,7 +56,7 @@ class MusicController
     public function getArtist(DiscogsClient $discogs): Response
     {
         $artist = $discogs->getArtist(['id' => 8760]);
-        
+
         return new JsonResponse([
             'name' => $artist['name'],
             'profile' => $artist['profile'] ?? null,
@@ -72,22 +72,22 @@ Create `config/packages/calliostro_discogs.yaml`:
 ```yaml
 # config/packages/calliostro_discogs.yaml
 calliostro_discogs:
-  # Required: HTTP User-Agent header for API requests
-  user_agent: 'MyApp/1.0 +https://myapp.com'
+    # Required: HTTP User-Agent header for API requests
+    user_agent: 'MyApp/1.0 +https://myapp.com'
 
-  # Recommended: Your application credentials from discogs.com/applications
-  consumer_key: ~
-  consumer_secret: ~
+    # Recommended: Your application credentials from discogs.com/applications
+    consumer_key: ~
+    consumer_secret: ~
 
-  # Rate limiting configuration
-  throttle:
-    enabled: true
-    microseconds: 1000000  # Wait time when rate limit is hit
+    # Rate limiting configuration
+    throttle:
+        enabled: true
+        microseconds: 1000000  # Wait time when the rate limit is hit
 
-  # OAuth 1.0a authentication (for user-specific data)
-  oauth:
-    enabled: false
-    token_provider: calliostro_discogs.hwi_oauth_token_provider
+    # OAuth 1.0a authentication (for user-specific data)
+    oauth:
+        enabled: false
+        token_provider: calliostro_discogs.hwi_oauth_token_provider
 ```
 
 ### Authentication
@@ -105,9 +105,9 @@ For user-specific data access, OAuth 1.0a is required. This bundle includes supp
 ```yaml
 # config/packages/calliostro_discogs.yaml
 calliostro_discogs:
-  oauth:
-    enabled: true
-    # token_provider: calliostro_discogs.hwi_oauth_token_provider  # Default, no need to specify
+    oauth:
+        enabled: true
+        # token_provider: calliostro_discogs.hwi_oauth_token_provider  # Default, no need to specify
 ```
 
 ### Custom Token Provider
@@ -124,7 +124,7 @@ class CustomTokenProvider implements OAuthTokenProviderInterface
         // Return OAuth token
     }
 
-    public function getTokenSecret(): string  
+    public function getTokenSecret(): string
     {
         // Return OAuth token secret
     }
