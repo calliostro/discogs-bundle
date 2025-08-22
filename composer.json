@@ -21,7 +21,7 @@
         "symfony/config": "^6.4|^7.0|^8.0",
         "symfony/dependency-injection": "^6.4|^7.0|^8.0",
         "symfony/http-kernel": "^6.4|^7.0|^8.0",
-        "symfony/security-bundle": "^6.4|^7.0|^8.0"
+        "symfony/security-core": "^6.4|^7.0|^8.0"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "^6.4|^7.0|^8.0"
