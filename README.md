@@ -1,51 +1,49 @@
-Discogs Bundle
-==============
+# 🎵 Discogs Bundle
 
 [![Build Status](https://api.travis-ci.com/calliostro/discogs-bundle.svg)](https://app.travis-ci.com/github/calliostro/discogs-bundle)
-[![Version](https://poser.pugx.org/calliostro/discogs-bundle/version)](//packagist.org/packages/calliostro/discogs-bundle)
-[![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](//packagist.org/packages/calliostro/discogs-bundle)
+[![Version](https://poser.pugx.org/calliostro/discogs-bundle/version)](https://packagist.org/packages/calliostro/discogs-bundle)
+[![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](https://packagist.org/packages/calliostro/discogs-bundle)
 
-This bundle provides a simple integration of the
-[calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4+ and Symfony 7.
+> 🚀 **Easy integration of [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4+, 7, and 8!**
+>
+> 📚 For more about the Discogs API, visit [Discogs Developers](https://www.discogs.com/developers).
 
-For more information about the Discogs API, visit https://www.discogs.com/developers.
-
-## Requirements
+## ⚡ Requirements
 
 - **PHP**: 8.1 or higher
-- **Symfony**: 6.4 or 7.x
+- **Symfony**: 6.4, 7.x, or 8.x
 
-## Installation
+## 📦 Installation
 
-### Applications using Symfony Flex
-
-```console
-composer require calliostro/discogs-bundle
-```
-
-### Applications not using Symfony Flex
-
-#### Step 1: Install the Bundle
+### Symfony Flex (Recommended)
 
 ```console
 composer require calliostro/discogs-bundle
 ```
 
-#### Step 2: Register the Bundle
+### Without Symfony Flex
 
-Add the bundle to `config/bundles.php`:
+1️⃣ **Install the Bundle**
+
+```console
+composer require calliostro/discogs-bundle
+```
+
+2️⃣ **Register the Bundle**
+
+Add to `config/bundles.php`:
 
 ```php
 // config/bundles.php
 return [
-    // ...
+    // ...existing bundles...
     Calliostro\DiscogsBundle\CalliostroDiscogsBundle::class => ['all' => true],
 ];
 ```
 
-## Usage
+## 🎸 Usage
 
-The bundle provides a `DiscogsClient` service that can be autowired:
+The bundle provides a `DiscogsClient` service for autowiring:
 
 ```php
 // src/Controller/MusicController.php
@@ -65,7 +63,7 @@ class MusicController
 }
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 Create `config/packages/calliostro_discogs.yaml`:
 
@@ -90,17 +88,17 @@ calliostro_discogs:
         token_provider: calliostro_discogs.hwi_oauth_token_provider
 ```
 
-### Authentication
+### 🔐 Authentication
 
 #### Basic Authentication (Recommended)
-Register your application at https://www.discogs.com/applications to get:
+Register your app at [Discogs Applications](https://www.discogs.com/applications) to get:
 - `consumer_key`
 - `consumer_secret`
 
-This enables access to protected endpoints and higher rate limits.
+This enables access to protected endpoints and higher rate limits. 🚦
 
 #### OAuth 1.0a (Optional)
-For user-specific data access, OAuth 1.0a is required. This bundle includes support for [HWIOAuthBundle](https://github.com/hwi/HWIOAuthBundle):
+For user-specific data, OAuth 1.0a is supported via [HWIOAuthBundle](https://github.com/hwi/HWIOAuthBundle):
 
 ```yaml
 # config/packages/calliostro_discogs.yaml
@@ -110,7 +108,7 @@ calliostro_discogs:
         # token_provider: calliostro_discogs.hwi_oauth_token_provider  # Default, no need to specify
 ```
 
-### Custom Token Provider
+### 🛡️ Custom Token Provider
 
 Implement `OAuthTokenProviderInterface` for custom OAuth token handling:
 
@@ -131,16 +129,16 @@ class CustomTokenProvider implements OAuthTokenProviderInterface
 }
 ```
 
-## Documentation
+## 📖 Documentation
 
 - **API Client**: See [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api)
 - **Discogs API**: [Official Documentation](https://www.discogs.com/developers)
 - **Example Application**: [discogs-bundle-demo](https://github.com/calliostro/discogs-bundle-demo)
 
-## Contributing
+## 🤝 Contributing
 
-Found a bug or missing feature? Please [create an issue](https://github.com/calliostro/discogs-bundle/issues) or submit a pull request.
+Found a bug or missing feature? Please [create an issue](https://github.com/calliostro/discogs-bundle/issues) or submit a pull request. Contributions welcome! 💡
 
-## Credits
+## 🙏 Credits
 
 This bundle is based on [ricbra/RicbraDiscogsBundle](https://github.com/ricbra/RicbraDiscogsBundle) for Symfony 2.
