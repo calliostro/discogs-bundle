@@ -15,24 +15,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Minimum-supported dependencies with the oldest supported PHP version
+          # Core PHP version testing
+          - php: '8.1'
+            allowed-to-fail: false
+          - php: '8.2'
+            allowed-to-fail: false
+          - php: '8.3'
+            allowed-to-fail: false
+          - php: '8.4'
+            allowed-to-fail: false
+            
+          # Minimum supported dependencies test
           - php: '8.1'
             composer-flags: '--prefer-stable --prefer-lowest'
             allowed-to-fail: false
             
-          # Test the latest stable release with different PHP versions
-          - php: '8.1'
-            allowed-to-fail: false
-          - php: '8.2'
-            allowed-to-fail: false
-          - php: '8.3'
-            allowed-to-fail: false
-          - php: '8.4'
-            allowed-to-fail: false
-          - php: '8.5'
-            allowed-to-fail: true # PHP 8.5 is still in beta
-            
-          # Test with Symfony 6.4.x (current LTS branch)
+          # Symfony 6.4 LTS compatibility
           - php: '8.2'
             symfony-version: '^6.4'
             allowed-to-fail: false
@@ -43,7 +41,7 @@ jobs:
             symfony-version: '^6.4'
             allowed-to-fail: false
             
-          # Test with Symfony 7.x versions (7.4 is LTS)
+          # Symfony 7.x current versions
           - php: '8.2'
             symfony-version: '^7.0'
             allowed-to-fail: false
@@ -62,22 +60,27 @@ jobs:
           - php: '8.3'
             symfony-version: '^7.3'
             allowed-to-fail: false
-          - php: '8.4'
-            symfony-version: '^7.4'
-            allowed-to-fail: false
             
-          # Test with upcoming Symfony 8.x
-          - php: '8.4'
-            symfony-version: '^8.0'
-            allowed-to-fail: true # Symfony 8.0 might not be released yet
+          # Future releases (November 2025) - PHP 8.5 + Symfony 8.0
           - php: '8.5'
             symfony-version: '^8.0'
-            allowed-to-fail: true # Both PHP 8.5 and Symfony 8.0 are beta/unreleased
-            
-          # Latest commit to master with dev stability
-          - php: '8.5'
             stability: 'dev'
-            allowed-to-fail: true # Dev master is allowed to fail
+            allowed-to-fail: true
+            
+          # Additional future compatibility tests
+          - php: '8.3'
+            symfony-version: '^8.0'
+            stability: 'dev'
+            allowed-to-fail: true
+          - php: '8.4'
+            symfony-version: '^8.0'
+            stability: 'dev'
+            allowed-to-fail: true
+            
+          # Development stability test
+          - php: '8.4'
+            stability: 'dev'
+            allowed-to-fail: true
 
     name: "PHP ${{ matrix.php }}${{ matrix.symfony-version && format(' | Symfony {0}', matrix.symfony-version) || '' }}${{ matrix.composer-flags && format(' | {0}', matrix.composer-flags) || '' }}${{ matrix.stability && format(' | {0}', matrix.stability) || '' }}"
 
@@ -106,7 +109,9 @@ jobs:
 
       - name: Configure stability
         if: matrix.stability
-        run: composer config minimum-stability ${{ matrix.stability }}
+        run: |
+          composer config minimum-stability ${{ matrix.stability }}
+          composer config prefer-stable true
 
       - name: Configure Symfony version
         if: matrix.symfony-version
@@ -115,7 +120,8 @@ jobs:
             symfony/config:${{ matrix.symfony-version }} \
             symfony/dependency-injection:${{ matrix.symfony-version }} \
             symfony/http-kernel:${{ matrix.symfony-version }} \
-            symfony/security-core:${{ matrix.symfony-version }}
+            symfony/security-core:${{ matrix.symfony-version }} \
+            symfony/phpunit-bridge:${{ matrix.symfony-version }}
 
       - name: Remove composer.lock
         run: rm -f composer.lock
