@@ -1,9 +1,20 @@
 {
     "name": "calliostro/discogs-bundle",
-    "description": "Bundle around the Discogs API client for Symfony 6.4, Symfony 7 and Symfony 8",
+    "description": "Symfony bundle for the Discogs API — vinyl, music data & integration made easy",
     "type": "symfony-bundle",
-    "keywords": ["discogs", "api", "symfony", "bundle"],
-    "homepage": "https://github.com/calliostro/CalliostroDiscogsBundle",
+    "keywords": [
+        "symfony-bundle",
+        "symfony",
+        "php",
+        "discogs",
+        "discogs-api",
+        "music",
+        "api-client",
+        "web-api",
+        "audio",
+        "vinyl"
+    ],
+    "homepage": "https://github.com/calliostro/discogs-bundle",
     "license": "MIT",
     "authors": [
         {
@@ -31,12 +42,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Calliostro\\DiscogsBundle\\": "src\\"
+            "Calliostro\\DiscogsBundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Calliostro\\DiscogsBundle\\Tests\\": "tests\\"
+            "Calliostro\\DiscogsBundle\\Tests\\": "tests/"
         }
     },
     "suggest": {
