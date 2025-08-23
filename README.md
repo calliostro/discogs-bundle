@@ -4,7 +4,7 @@
 [![Version](https://poser.pugx.org/calliostro/discogs-bundle/version)](https://packagist.org/packages/calliostro/discogs-bundle)
 [![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](https://packagist.org/packages/calliostro/discogs-bundle)
 
-> 🚀 **Easy integration of [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4+, 7, and 8!**
+> 🚀 **Easy integration of [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4, 7, and 8!**
 >
 > 📚 For more about the Discogs API, visit [Discogs Developers](https://www.discogs.com/developers).
 
