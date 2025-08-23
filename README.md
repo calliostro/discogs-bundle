@@ -1,6 +1,6 @@
 # 🎵 Discogs Bundle
 
-[![Build Status](https://api.travis-ci.com/calliostro/discogs-bundle.svg)](https://app.travis-ci.com/github/calliostro/discogs-bundle)
+[![CI](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml/badge.svg)](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml)
 [![Version](https://poser.pugx.org/calliostro/discogs-bundle/version)](https://packagist.org/packages/calliostro/discogs-bundle)
 [![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](https://packagist.org/packages/calliostro/discogs-bundle)
 
