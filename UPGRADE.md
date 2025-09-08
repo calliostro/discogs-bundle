@@ -17,20 +17,22 @@ composer require calliostro/discogs-bundle:^3.1
 
 ### ✅ What's Included
 
-- **Zero Code Changes Required** - All existing configurations and code continue to work
-- **Better Error Messages** - Clearer validation messages when OAuth is misconfigured
-- **Improved Performance** - Optimized internal service handling
-- **Enhanced Documentation** - Updated examples and configuration guides
+- **Zero Code Changes Required** – All existing configurations and code continue to work
+- **Better Error Messages** – Clearer validation messages when OAuth is misconfigured
+- **Improved Performance** – Optimized internal service handling
+- **Enhanced Documentation** – Updated examples and configuration guides
 
 ### 🚨 Potential Issues
 
-#### If you're using PHP < 8.1:
+#### If you're using PHP < 8.1
+
 ```bash
 # Update your PHP version first
 php --version  # Should show 8.1 or higher
 ```
 
-#### If you're using Symfony < 6.4:
+#### If you're using Symfony < 6.4
+
 ```bash
 # Check your Symfony version
 composer show symfony/framework-bundle | grep versions
@@ -54,6 +56,7 @@ echo $artist['name']; // Should display artist name
 Your existing configuration continues to work, but you can now benefit from:
 
 #### Clearer Error Messages
+
 ```yaml
 # config/packages/calliostro_discogs.yaml
 calliostro_discogs:
@@ -63,10 +66,12 @@ calliostro_discogs:
 ```
 
 #### Better Documentation
+
 Check the updated README.md for modern examples and best practices.
 
 ---
 
 **Need Help?**
+
 - [Create an issue](https://github.com/calliostro/discogs-bundle/issues) if you encounter problems
 - [Check the documentation](https://github.com/calliostro/discogs-bundle#readme) for updated examples

@@ -2,14 +2,14 @@
 
 namespace Calliostro\DiscogsBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * This is the class that loads and manages your bundle configuration
+ * This is the class that loads and manages your bundle configuration.
  *
  * To learn more see {@link https://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
@@ -24,7 +24,7 @@ final class CalliostroDiscogsExtension extends Extension
         $loader->load('services.xml');
 
         $params = [
-            'headers' => ['User-Agent' => $config['user_agent']]
+            'headers' => ['User-Agent' => $config['user_agent']],
         ];
 
         $this->configureThrottling($container, $config, $params);
@@ -34,6 +34,10 @@ final class CalliostroDiscogsExtension extends Extension
         $clientDefinition->replaceArgument(0, $params);
     }
 
+    /**
+     * @param array<string, mixed> $config
+     * @param array<string, mixed> $params
+     */
     private function configureThrottling(ContainerBuilder $container, array $config, array &$params): void
     {
         if (!$config['throttle']['enabled']) {
@@ -49,6 +53,10 @@ final class CalliostroDiscogsExtension extends Extension
         $params['handler'] = new Reference('calliostro_discogs.throttle_handler_stack');
     }
 
+    /**
+     * @param array<string, mixed> $config
+     * @param array<string, mixed> $params
+     */
     private function configureOAuth(ContainerBuilder $container, array $config, array &$params, Loader\XmlFileLoader $loader): void
     {
         if ($config['oauth']['enabled']) {
@@ -64,10 +72,10 @@ final class CalliostroDiscogsExtension extends Extension
 
             $params['handler'] = new Reference('calliostro_discogs.oauth_handler_stack');
         } elseif (isset($config['consumer_key'], $config['consumer_secret'])) {
-            $params['headers']['Authorization'] = sprintf(
-                'Discogs key=%s, secret=%s', 
-                $config['consumer_key'], 
-                $config['consumer_secret']
+            $params['headers']['Authorization'] = \sprintf(
+                'Discogs key=%s, secret=%s',
+                $config['consumer_key'],
+                $config['consumer_secret'],
             );
         }
     }

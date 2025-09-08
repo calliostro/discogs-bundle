@@ -2,14 +2,22 @@ name: CI
 
 on:
   push:
-    branches: [ master, main ]
+    branches:
+      - 'main'
+      - 'legacy/**'     # All legacy branches
+      - 'feature/**'    # All feature branches
+      - 'hotfix/**'     # All hotfix branches
+      - 'release/**'    # All release branches
   pull_request:
-    branches: [ master, main ]
+    branches:
+      - 'main'
+      - 'legacy/**'     # PRs to legacy branches
+  workflow_dispatch:    # Allows manual triggering via GitHub UI
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -42,37 +50,57 @@ jobs:
           - php: '8.3'
             symfony-version: '^7.0'
             allowed-to-fail: false
-          - php: '8.2'
-            symfony-version: '^7.1'
+          - php: '8.4'
+            symfony-version: '^7.0'
             allowed-to-fail: false
           - php: '8.3'
             symfony-version: '^7.1'
             allowed-to-fail: false
-          - php: '8.3'
+          - php: '8.4'
+            symfony-version: '^7.1'
+            allowed-to-fail: false
+          - php: '8.4'
             symfony-version: '^7.2'
             allowed-to-fail: false
-          - php: '8.3'
+          - php: '8.4'
             symfony-version: '^7.3'
             allowed-to-fail: false
-            
-          # Future releases (November 2025) - PHP 8.5 + Symfony 8.0
+          - php: '8.4'
+            symfony-version: '^7.4'
+            stability: 'dev'
+            allowed-to-fail: true
+
+          # Future-ready: Symfony 8.0 (beta/dev) - Requires PHP 8.4+
+          - php: '8.4'
+            symfony-version: '^8.0'
+            stability: 'dev'
+            allowed-to-fail: true
+
+          # Future-ready: PHP 8.5 (alpha/dev) - when available
+          - php: '8.5'
+            symfony-version: '^7.3'
+            stability: 'dev'
+            allowed-to-fail: true
+          - php: '8.5'
+            symfony-version: '^7.4'
+            stability: 'dev'
+            allowed-to-fail: true
           - php: '8.5'
             symfony-version: '^8.0'
             stability: 'dev'
             allowed-to-fail: true
-            
-          # Additional future compatibility tests
+
+          # Development stability tests
           - php: '8.4'
-            symfony-version: '^8.0'
             stability: 'dev'
             allowed-to-fail: true
-            
-          # Development stability test
-          - php: '8.4'
+          - php: '8.5'
             stability: 'dev'
             allowed-to-fail: true
 
-    name: "PHP ${{ matrix.php }}${{ matrix.symfony-version && format(' | Symfony {0}', matrix.symfony-version) || '' }}${{ matrix.composer-flags && format(' | {0}', matrix.composer-flags) || '' }}${{ matrix.stability && format(' | {0}', matrix.stability) || '' }}"
+    name: "PHP ${{ matrix.php }}${{ matrix.symfony-version && format(' | Symfony {0}', matrix.symfony-version) || '' }}${{ matrix.stability && format(' | {0}', matrix.stability) || '' }}"
+
+    continue-on-error: ${{ matrix.allowed-to-fail }}
 
     steps:
       - name: Checkout code
@@ -117,10 +145,16 @@ jobs:
         run: rm -f composer.lock
 
       - name: Install dependencies
-        run: composer update ${{ matrix.composer-flags }} --prefer-dist --no-interaction --no-progress
+        run: composer update --prefer-dist --no-interaction --no-progress
 
-      - name: Validate composer.json
-        run: composer validate --strict --no-check-lock
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Run code style check
+        run: composer cs
+
+      - name: Run static analysis
+        run: composer analyse
 
       - name: Run tests
         run: ./vendor/bin/simple-phpunit -v
@@ -128,7 +162,7 @@ jobs:
   code-quality:
     runs-on: ubuntu-latest
     name: Code Quality Checks
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -136,7 +170,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: json, mbstring, tokenizer
           coverage: none
           tools: composer:v2
@@ -157,3 +191,44 @@ jobs:
 
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
+
+  coverage:
+    runs-on: ubuntu-latest
+    name: Code Coverage
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: json, mbstring, tokenizer
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run tests with coverage
+        run: ./vendor/bin/simple-phpunit --coverage-clover coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false

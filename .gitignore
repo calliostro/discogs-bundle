@@ -5,10 +5,11 @@ composer.lock
 # Symfony var (cache, logs, sessions)
 /var/
 
-###> symfony/phpunit-bridge ###
-.phpunit
+# Code Quality Tools
+.php-cs-fixer.cache
 .phpunit.result.cache
-.phpunit.cache/
-/phpunit.xml
-/tests/cache/
-###< symfony/phpunit-bridge ###
+
+# Code Coverage Reports
+/coverage/
+coverage.xml
+coverage.clover
