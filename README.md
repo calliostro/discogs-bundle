@@ -4,8 +4,8 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/calliostro/discogs-bundle.svg)](https://packagist.org/packages/calliostro/discogs-bundle)
 [![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](https://packagist.org/packages/calliostro/discogs-bundle)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.1-blue.svg)](https://php.net)
-[![CI](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml/badge.svg?branch=legacy%2F3.x)](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml)
-[![Code Coverage](https://codecov.io/gh/calliostro/discogs-bundle/graph/badge.svg?token=3ATEFYF7A0)](https://codecov.io/gh/calliostro/discogs-bundle)
+[![CI](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml/badge.svg?branch=legacy%2Fv3.x)](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml)
+[![Code Coverage](https://codecov.io/gh/calliostro/discogs-bundle/branch/legacy%2Fv3.x/graph/badge.svg?token=3ATEFYF7A0)](https://codecov.io/gh/calliostro/discogs-bundle)
 [![PHPStan Level](https://img.shields.io/badge/PHPStan-Level%208-brightgreen.svg)](https://phpstan.org/)
 [![Code Style](https://img.shields.io/badge/code%20style-Symfony-brightgreen.svg)](https://github.com/FriendsOfPHP/PHP-CS-Fixer)
 

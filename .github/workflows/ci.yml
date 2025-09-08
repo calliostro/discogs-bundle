@@ -65,6 +65,10 @@ jobs:
           - php: '8.4'
             symfony-version: '^7.3'
             allowed-to-fail: false
+          - php: '8.4'
+            symfony-version: '^7.4'
+            stability: 'dev'
+            allowed-to-fail: true
 
           # Future-ready: Symfony 8.0 (beta/dev) - Requires PHP 8.4+
           - php: '8.4'
@@ -74,11 +78,15 @@ jobs:
 
           # Future-ready: PHP 8.5 (alpha/dev) - when available
           - php: '8.5'
-            symfony-version: '^8.0'
+            symfony-version: '^7.3'
             stability: 'dev'
             allowed-to-fail: true
           - php: '8.5'
-            symfony-version: '^7.3'
+            symfony-version: '^7.4'
+            stability: 'dev'
+            allowed-to-fail: true
+          - php: '8.5'
+            symfony-version: '^8.0'
             stability: 'dev'
             allowed-to-fail: true
 
@@ -146,7 +154,12 @@ jobs:
         run: composer cs
 
       - name: Run static analysis
-        run: composer analyse
+        run: |
+          if [[ "${{ matrix.stability }}" == "dev" || "${{ matrix.allowed-to-fail }}" == "true" ]]; then
+            composer analyse || echo "PHPStan failed on dev/beta version - expected"
+          else
+            composer analyse
+          fi
 
       - name: Run tests
         run: ./vendor/bin/simple-phpunit -v
