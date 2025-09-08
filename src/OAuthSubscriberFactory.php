@@ -9,13 +9,13 @@ final class OAuthSubscriberFactory
     public static function factory(
         OAuthTokenProviderInterface $provider,
         string $consumerKey,
-        string $consumerSecret
+        string $consumerSecret,
     ): Oauth1 {
         return new Oauth1([
             'consumer_key' => $consumerKey,
             'consumer_secret' => $consumerSecret,
             'token' => $provider->getToken(),
-            'token_secret' => $provider->getTokenSecret()
+            'token_secret' => $provider->getTokenSecret(),
         ]);
     }
 }

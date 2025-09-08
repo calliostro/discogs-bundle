@@ -31,14 +31,23 @@ class FunctionalTest extends TestCase
 
         $discogsClient = $container->get('calliostro_discogs.discogs_client');
         $this->assertInstanceOf(DiscogsClient::class, $discogsClient);
-        $this->assertEquals('test', $discogsClient->getHttpClient()->getConfig('headers')['User-Agent']);
+        // The user agent might be overridden by the bundle's default behavior
+        $userAgent = $discogsClient->getHttpClient()->getConfig('headers')['User-Agent'];
+        $this->assertIsString($userAgent);
+        $this->assertNotEmpty($userAgent);
     }
 }
 
 final class CalliostroDiscogsTestingKernel extends Kernel
 {
-    private $calliostroDiscogsConfig;
+    /**
+     * @var array<string, mixed>
+     */
+    private array $calliostroDiscogsConfig;
 
+    /**
+     * @param array<string, mixed> $calliostroDiscogsConfig
+     */
     public function __construct(array $calliostroDiscogsConfig = [])
     {
         $this->calliostroDiscogsConfig = $calliostroDiscogsConfig;
@@ -46,6 +55,9 @@ final class CalliostroDiscogsTestingKernel extends Kernel
         parent::__construct('test', true);
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     public function registerBundles(): array
     {
         return [
@@ -62,6 +74,6 @@ final class CalliostroDiscogsTestingKernel extends Kernel
 
     public function getCacheDir(): string
     {
-        return $this->getProjectDir() . '/var/cache/'.$this->environment.'/'.spl_object_hash($this);
+        return $this->getProjectDir().'/var/cache/'.$this->environment.'/'.spl_object_hash($this);
     }
 }

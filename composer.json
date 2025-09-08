@@ -35,10 +35,15 @@
         "symfony/security-core": "^6.4|^7.0|^8.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^6.4|^7.0|^8.0"
+        "symfony/phpunit-bridge": "^6.4|^7.0|^8.0",
+        "phpstan/phpstan": "^2.1",
+        "friendsofphp/php-cs-fixer": "^3.87"
     },
     "scripts": {
-        "test": "vendor/bin/simple-phpunit"
+        "test": "vendor/bin/simple-phpunit",
+        "cs": "vendor/bin/php-cs-fixer fix --dry-run --diff --verbose",
+        "cs-fix": "vendor/bin/php-cs-fixer fix --verbose",
+        "analyse": "vendor/bin/phpstan analyse src tests --level=8"
     },
     "autoload": {
         "psr-4": {

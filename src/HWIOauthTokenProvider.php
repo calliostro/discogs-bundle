@@ -24,11 +24,13 @@ final class HWIOauthTokenProvider implements OAuthTokenProviderInterface
     {
         // getToken() must be a HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\AbstractOAuthToken
         $token = $this->tokenStorage->getToken();
-        
-        if ($token !== null && method_exists($token, 'getRawToken')) {
-            /** @var mixed $token */
-            $rawToken = $token->getRawToken();
-            return $rawToken[$name] ?? '';
+
+        if (null !== $token && method_exists($token, 'getRawToken')) {
+            // Safe call using method_exists check - HWIOAuthBundle's AbstractOAuthToken has this method
+            $rawToken = \call_user_func([$token, 'getRawToken']);
+            if (\is_array($rawToken) && isset($rawToken[$name])) {
+                return (string) $rawToken[$name];
+            }
         }
 
         return '';

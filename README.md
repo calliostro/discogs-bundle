@@ -1,12 +1,17 @@
 # 🎵 Discogs Bundle
 
-[![CI](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml/badge.svg)](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml)
-[![Version](https://poser.pugx.org/calliostro/discogs-bundle/version)](https://packagist.org/packages/calliostro/discogs-bundle)
+[![Package Version](https://img.shields.io/packagist/v/calliostro/discogs-bundle.svg)](https://packagist.org/packages/calliostro/discogs-bundle)
+[![Total Downloads](https://img.shields.io/packagist/dt/calliostro/discogs-bundle.svg)](https://packagist.org/packages/calliostro/discogs-bundle)
 [![License](https://poser.pugx.org/calliostro/discogs-bundle/license)](https://packagist.org/packages/calliostro/discogs-bundle)
+[![PHP Version](https://img.shields.io/badge/php-%5E8.1-blue.svg)](https://php.net)
+[![CI](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml/badge.svg?branch=legacy%2F3.x)](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml)
+[![Code Coverage](https://codecov.io/gh/calliostro/discogs-bundle/graph/badge.svg?token=3ATEFYF7A0)](https://codecov.io/gh/calliostro/discogs-bundle)
+[![PHPStan Level](https://img.shields.io/badge/PHPStan-Level%208-brightgreen.svg)](https://phpstan.org/)
+[![Code Style](https://img.shields.io/badge/code%20style-Symfony-brightgreen.svg)](https://github.com/FriendsOfPHP/PHP-CS-Fixer)
 
-> 🚀 **Easy integration of [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4, 7, and 8!**
+> 🚀 **Seamless integration of [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4, 7, and 8.**  
 >
-> 📚 For more about the Discogs API, visit [Discogs Developers](https://www.discogs.com/developers).
+> Use [v4.0.0](https://github.com/calliostro/discogs-bundle) for new projects with modern tooling and breaking changes. Legacy support for v3.x continues on the [`legacy/v3.x`](https://github.com/calliostro/discogs-bundle/tree/legacy/v3.x) branch.
 
 ## ⚡ Requirements
 
@@ -91,13 +96,16 @@ calliostro_discogs:
 ### 🔐 Authentication
 
 #### Basic Authentication (Recommended)
+
 Register your app at [Discogs Applications](https://www.discogs.com/applications) to get:
+
 - `consumer_key`
 - `consumer_secret`
 
 This enables access to protected endpoints and higher rate limits. 🚦
 
 #### OAuth 1.0a (Optional)
+
 For user-specific data, OAuth 1.0a is supported via [HWIOAuthBundle](https://github.com/hwi/HWIOAuthBundle):
 
 ```yaml
@@ -137,8 +145,21 @@ class CustomTokenProvider implements OAuthTokenProviderInterface
 
 ## 🤝 Contributing
 
-Found a bug or missing feature? Please [create an issue](https://github.com/calliostro/discogs-bundle/issues) or submit a pull request. Contributions welcome! 💡
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 🙏 Credits
+Please ensure your code follows PSR-12 standards and includes tests.
 
-This bundle is based on [ricbra/RicbraDiscogsBundle](https://github.com/ricbra/RicbraDiscogsBundle) for Symfony 2.
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Discogs](https://www.discogs.com/) for providing the excellent music database API
+- [ricbra/RicbraDiscogsBundle](https://github.com/ricbra/RicbraDiscogsBundle) for the original inspiration
+
+> **⭐ Star this repo if you find it useful! It helps others discover this lightweight solution.**
