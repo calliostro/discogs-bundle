@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - 'main'
-      - 'legacy/**'     # All legacy branches
-      - 'feature/**'    # All feature branches
-      - 'hotfix/**'     # All hotfix branches
-      - 'release/**'    # All release branches
+      - 'legacy/*'      # Legacy branches: legacy/v3.x
+      - 'feature/*'     # Feature branches: feature/new-feature  
+      - 'hotfix/*'      # Hotfix branches: hotfix/urgent-fix
+      - 'release/*'     # Release branches: release/v4.0.0
   pull_request:
     branches:
       - 'main'
-      - 'legacy/**'     # PRs to legacy branches
+      - 'legacy/*'      # PRs to legacy branches
   workflow_dispatch:    # Allows manual triggering via GitHub UI
 
 jobs:
