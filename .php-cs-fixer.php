@@ -3,14 +3,15 @@
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__.'/src')
     ->in(__DIR__.'/tests')
-    ->exclude('vendor')
-;
+    ->exclude('vendor');
 
-return (new PhpCsFixer\Config())
-    ->setFinder($finder)
+$config = new PhpCsFixer\Config();
+$config->setFinder($finder)
     ->setRules([
         '@Symfony' => true,
         '@Symfony:risky' => true,
     ])
     ->setRiskyAllowed(true)
-;
+    ->setUnsupportedPhpVersionAllowed(true);
+
+return $config;
