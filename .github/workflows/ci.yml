@@ -154,12 +154,7 @@ jobs:
         run: composer cs
 
       - name: Run static analysis
-        run: |
-          if [[ "${{ matrix.stability }}" == "dev" || "${{ matrix.allowed-to-fail }}" == "true" ]]; then
-            composer analyse || echo "PHPStan failed on dev/beta version - expected"
-          else
-            composer analyse
-          fi
+        run: composer analyse
 
       - name: Run tests
         run: ./vendor/bin/simple-phpunit -v

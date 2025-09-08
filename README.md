@@ -6,7 +6,7 @@
 [![PHP Version](https://img.shields.io/badge/php-%5E8.1-blue.svg)](https://php.net)
 [![CI](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml/badge.svg?branch=legacy%2Fv3.x)](https://github.com/calliostro/discogs-bundle/actions/workflows/ci.yml)
 [![Code Coverage](https://codecov.io/gh/calliostro/discogs-bundle/branch/legacy%2Fv3.x/graph/badge.svg?token=3ATEFYF7A0)](https://codecov.io/gh/calliostro/discogs-bundle)
-[![PHPStan Level](https://img.shields.io/badge/PHPStan-Level%208-brightgreen.svg)](https://phpstan.org/)
+[![PHPStan Level](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg)](https://phpstan.org/)
 [![Code Style](https://img.shields.io/badge/code%20style-Symfony-brightgreen.svg)](https://github.com/FriendsOfPHP/PHP-CS-Fixer)
 
 > 🚀 **Seamless integration of [calliostro/php-discogs-api](https://github.com/calliostro/php-discogs-api) into Symfony 6.4, 7, and 8.**  
@@ -151,7 +151,7 @@ class CustomTokenProvider implements OAuthTokenProviderInterface
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-Please ensure your code follows PSR-12 standards and includes tests.
+Please ensure your code follows Symfony coding standards and includes tests.
 
 ## 📄 License
 
