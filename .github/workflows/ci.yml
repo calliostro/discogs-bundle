@@ -154,7 +154,12 @@ jobs:
         run: composer cs
 
       - name: Run static analysis
-        run: composer analyse
+        run: |
+          if [[ "${{ matrix.symfony-version }}" == "^7.4" || "${{ matrix.symfony-version }}" == "^8.0" ]]; then
+            composer analyse-generics
+          else
+            composer analyse
+          fi
 
       - name: Run tests
         run: ./vendor/bin/simple-phpunit -v
