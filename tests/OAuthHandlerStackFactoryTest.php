@@ -7,7 +7,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use PHPUnit\Framework\TestCase;
 
-class OAuthHandlerStackFactoryTest extends TestCase
+final class OAuthHandlerStackFactoryTest extends TestCase
 {
     public function testFactoryWithOauth(): void
     {

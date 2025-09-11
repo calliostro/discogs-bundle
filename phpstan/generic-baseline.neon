@@ -2,4 +2,4 @@ parameters:
 	ignoreErrors:
 		-
 			identifier: missingType.generics
-			path: src/DependencyInjection/Configuration.php
+			path: ../src/DependencyInjection/Configuration.php

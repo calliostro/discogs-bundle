@@ -6,7 +6,7 @@ use Calliostro\DiscogsBundle\DependencyInjection\CalliostroDiscogsExtension;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class CalliostroDiscogsExtensionTest extends TestCase
+final class CalliostroDiscogsExtensionTest extends TestCase
 {
     public function testLoadWithMinimalConfig(): void
     {

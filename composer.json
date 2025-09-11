@@ -56,7 +56,7 @@
         "cs": "vendor/bin/php-cs-fixer fix --dry-run --diff --verbose",
         "cs-fix": "vendor/bin/php-cs-fixer fix --verbose",
         "analyse": "vendor/bin/phpstan analyse src --level=8",
-        "analyse-generics": "vendor/bin/phpstan analyse src --level=8 --configuration .github/phpstan/generic-baseline.neon"
+        "analyse-generics": "vendor/bin/phpstan analyse src --level=8 --configuration phpstan/generic-baseline.neon"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
