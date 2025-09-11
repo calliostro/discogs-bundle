@@ -40,14 +40,6 @@
         "phpstan/phpstan": "^2.1",
         "friendsofphp/php-cs-fixer": "^3.87"
     },
-    "config": {
-        "optimize-autoloader": true,
-        "preferred-install": "dist",
-        "sort-packages": true,
-        "platform": {
-            "php": "8.1.0"
-        }
-    },
     "autoload": {
         "psr-4": {
             "Calliostro\\DiscogsBundle\\": "src/"
