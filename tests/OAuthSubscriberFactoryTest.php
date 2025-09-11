@@ -7,7 +7,7 @@ use Calliostro\DiscogsBundle\OAuthTokenProviderInterface;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use PHPUnit\Framework\TestCase;
 
-class OAuthSubscriberFactoryTest extends TestCase
+final class OAuthSubscriberFactoryTest extends TestCase
 {
     public function testFactory(): void
     {
@@ -29,6 +29,7 @@ class OAuthSubscriberFactoryTest extends TestCase
             'test_consumer_secret'
         );
 
+        /* @noinspection PhpConditionAlreadyCheckedInspection */
         $this->assertInstanceOf(Oauth1::class, $oauth);
     }
 }

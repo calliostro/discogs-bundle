@@ -7,7 +7,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use PHPUnit\Framework\TestCase;
 
-class OAuthHandlerStackFactoryTest extends TestCase
+final class OAuthHandlerStackFactoryTest extends TestCase
 {
     public function testFactoryWithOauth(): void
     {
@@ -20,6 +20,7 @@ class OAuthHandlerStackFactoryTest extends TestCase
 
         $handlerStack = OAuthHandlerStackFactory::factory($oauth);
 
+        /* @noinspection PhpConditionAlreadyCheckedInspection */
         $this->assertInstanceOf(HandlerStack::class, $handlerStack);
         // Note: HandlerStack doesn't have a public hasHandler method
         // The important thing is that the handler stack is created with the OAuth subscriber
@@ -29,6 +30,7 @@ class OAuthHandlerStackFactoryTest extends TestCase
     {
         $handlerStack = OAuthHandlerStackFactory::factory(null);
 
+        /* @noinspection PhpConditionAlreadyCheckedInspection */
         $this->assertInstanceOf(HandlerStack::class, $handlerStack);
         // Note: HandlerStack doesn't have a public hasHandler method, so we can't test this directly
         // The important thing is that the handler stack is created without error
