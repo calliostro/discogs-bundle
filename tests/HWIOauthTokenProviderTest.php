@@ -63,7 +63,7 @@ class HWIOauthTokenProviderTest extends TestCase
                 return null;
             }
 
-            public function setUser($user): void
+            public function setUser(mixed $user): void
             {
             }
 
@@ -85,11 +85,17 @@ class HWIOauthTokenProviderTest extends TestCase
             {
             }
 
+            /**
+             * @return array<string, mixed>
+             */
             public function getAttributes(): array
             {
                 return [];
             }
 
+            /**
+             * @param array<string, mixed> $attributes
+             */
             public function setAttributes(array $attributes): void
             {
             }
@@ -113,10 +119,16 @@ class HWIOauthTokenProviderTest extends TestCase
                 return [];
             }
 
+            /**
+             * @param array<string, mixed> $data
+             */
             public function __unserialize(array $data): void
             {
             }
 
+            /**
+             * @return array<string, mixed>
+             */
             public function getRawToken(): array
             {
                 return [
@@ -158,7 +170,7 @@ class HWIOauthTokenProviderTest extends TestCase
                 return null;
             }
 
-            public function setUser($user): void
+            public function setUser(mixed $user): void
             {
             }
 
@@ -180,11 +192,17 @@ class HWIOauthTokenProviderTest extends TestCase
             {
             }
 
+            /**
+             * @return array<string, mixed>
+             */
             public function getAttributes(): array
             {
                 return [];
             }
 
+            /**
+             * @param array<string, mixed> $attributes
+             */
             public function setAttributes(array $attributes): void
             {
             }
@@ -208,10 +226,16 @@ class HWIOauthTokenProviderTest extends TestCase
                 return [];
             }
 
+            /**
+             * @param array<string, mixed> $data
+             */
             public function __unserialize(array $data): void
             {
             }
 
+            /**
+             * @return array<string, mixed>
+             */
             public function getRawToken(): array
             {
                 return [
@@ -227,6 +251,6 @@ class HWIOauthTokenProviderTest extends TestCase
         $provider = new HWIOauthTokenProvider($tokenStorage);
 
         $this->assertEquals('test_access_token', $provider->getToken());
-        $this->assertEquals('', $provider->getTokenSecret()); // Missing key returns empty string
+        $this->assertEquals('', $provider->getTokenSecret()); // Missing key returns an empty string
     }
 }
