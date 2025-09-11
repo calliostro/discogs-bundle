@@ -5,11 +5,20 @@ composer.lock
 # Symfony var (cache, logs, sessions)
 /var/
 
-# Code Quality Tools
-.php-cs-fixer.cache
+# PHPUnit
 .phpunit.result.cache
+.phpunit.cache/
 
-# Code Coverage Reports
-/coverage/
+# PHPStan
+.phpstan/
+
+# PHP CS Fixer
+.php-cs-fixer.cache
+
+# Coverage reports
+coverage/
 coverage.xml
-coverage.clover
+*.clover
+
+# Environment files
+.env

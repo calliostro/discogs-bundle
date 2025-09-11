@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.4](https://github.com/calliostro/discogs-bundle/releases/tag/v3.1.4) – 2025-09-11
+
+### Added
+
+- Comprehensive @throws documentation for exception handling in source files
+- Additional edge case tests for HWIOauthTokenProvider to achieve 100% code coverage
+
+### Fixed
+
+- Deprecated getConfig() usage in functional tests replaced with future-safe implementation
+- PHPStan warnings suppressed for defensive null checks in test assertions
+
+### Changed
+
+- Improved exception documentation specificity (XML loading exceptions vs generic exceptions)
+- Enhanced test coverage from 96.9% to 100% with comprehensive OAuth token scenarios
+
+---
+
 ## [3.1.3](https://github.com/calliostro/discogs-bundle/releases/tag/v3.1.3) – 2025-09-08
 
 ### Changed

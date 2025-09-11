@@ -11,10 +11,13 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * This is the class that loads and manages your bundle configuration.
  *
- * To learn more see {@link https://symfony.com/doc/current/cookbook/bundles/extension.html}
+ * To learn more, see {@link https://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
 final class CalliostroDiscogsExtension extends Extension
 {
+    /**
+     * @throws \Exception When the XML service configuration file cannot be loaded
+     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
@@ -56,6 +59,8 @@ final class CalliostroDiscogsExtension extends Extension
     /**
      * @param array<string, mixed> $config
      * @param array<string, mixed> $params
+     *
+     * @throws \Exception When OAuth service configuration file cannot be loaded
      */
     private function configureOAuth(ContainerBuilder $container, array $config, array &$params, Loader\XmlFileLoader $loader): void
     {

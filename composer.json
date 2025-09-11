@@ -12,7 +12,8 @@
         "api-client",
         "web-api",
         "audio",
-        "vinyl"
+        "vinyl",
+        "php8"
     ],
     "homepage": "https://github.com/calliostro/discogs-bundle",
     "license": "MIT",
@@ -39,12 +40,6 @@
         "phpstan/phpstan": "^2.1",
         "friendsofphp/php-cs-fixer": "^3.87"
     },
-    "scripts": {
-        "test": "vendor/bin/simple-phpunit",
-        "cs": "vendor/bin/php-cs-fixer fix --dry-run --diff --verbose",
-        "cs-fix": "vendor/bin/php-cs-fixer fix --verbose",
-        "analyse": "vendor/bin/phpstan analyse src --level=8"
-    },
     "autoload": {
         "psr-4": {
             "Calliostro\\DiscogsBundle\\": "src/"
@@ -55,6 +50,16 @@
             "Calliostro\\DiscogsBundle\\Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "test": "vendor/bin/simple-phpunit",
+        "test-coverage": "vendor/bin/simple-phpunit --coverage-html coverage --coverage-clover coverage.xml",
+        "cs": "vendor/bin/php-cs-fixer fix --dry-run --diff --verbose",
+        "cs-fix": "vendor/bin/php-cs-fixer fix --verbose",
+        "analyse": "vendor/bin/phpstan analyse src --level=8",
+        "analyse-generics": "vendor/bin/phpstan analyse src --level=8 --configuration phpstan/generic-baseline.neon"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "suggest": {
         "hwi/HWIOAuthBundle": "Enable OAuth support using HWIOAuthBundle"
     }
