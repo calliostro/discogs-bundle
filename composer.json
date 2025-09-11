@@ -55,7 +55,7 @@
         "test-coverage": "vendor/bin/simple-phpunit --coverage-html coverage --coverage-clover coverage.xml",
         "cs": "vendor/bin/php-cs-fixer fix --dry-run --diff --verbose",
         "cs-fix": "vendor/bin/php-cs-fixer fix --verbose",
-        "analyse": "vendor/bin/phpstan analyse src/ tests/ --level=8"
+        "analyse": "vendor/bin/phpstan analyse src --level=8"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
