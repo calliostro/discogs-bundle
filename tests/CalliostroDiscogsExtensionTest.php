@@ -103,7 +103,7 @@ class CalliostroDiscogsExtensionTest extends TestCase
         $extension->load($config, $container);
 
         $this->assertTrue($container->hasDefinition('calliostro_discogs.discogs_client'));
-        // When throttle is disabled, no throttle handler should be configured
+        // When the throttle is disabled, no throttle handler should be configured
         $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
         $arguments = $clientDefinition->getArguments();
         $this->assertArrayNotHasKey('handler', $arguments[0]);

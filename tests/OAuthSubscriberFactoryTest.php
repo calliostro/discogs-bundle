@@ -29,6 +29,7 @@ class OAuthSubscriberFactoryTest extends TestCase
             'test_consumer_secret'
         );
 
+        /* @noinspection PhpConditionAlreadyCheckedInspection */
         $this->assertInstanceOf(Oauth1::class, $oauth);
     }
 }
