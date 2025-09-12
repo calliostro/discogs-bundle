@@ -148,7 +148,12 @@ jobs:
         run: composer update --prefer-dist --no-interaction --no-progress
 
       - name: Validate composer.json and composer.lock
-        run: composer validate --strict
+        run: |
+          if [[ "${{ github.ref }}" == *"beta"* || "${{ github.ref }}" == *"alpha"* || "${{ github.ref }}" == *"rc"* ]]; then
+            composer validate --no-check-version
+          else
+            composer validate --strict
+          fi
 
       - name: Run code style check
         run: composer cs
@@ -195,7 +200,12 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Validate composer.json and composer.lock
-        run: composer validate --strict
+        run: |
+          if [[ "${{ github.ref }}" == *"beta"* || "${{ github.ref }}" == *"alpha"* || "${{ github.ref }}" == *"rc"* ]]; then
+            composer validate --no-check-version
+          else
+            composer validate --strict
+          fi
 
   coverage:
     runs-on: ubuntu-latest
