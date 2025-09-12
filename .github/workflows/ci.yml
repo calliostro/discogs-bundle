@@ -5,7 +5,7 @@ on:
     branches:
       - 'main'
       - 'legacy/*'      # Legacy branches: legacy/v3.x
-      - 'feature/*'     # Feature branches: feature/new-feature
+      - 'feature/*'     # Feature branches: feature/new-feature  
       - 'hotfix/*'      # Hotfix branches: hotfix/urgent-fix
       - 'release/*'     # Release branches: release/v4.0.0
   pull_request:
@@ -31,7 +31,7 @@ jobs:
             allowed-to-fail: false
           - php: '8.4'
             allowed-to-fail: false
-
+            
           # Symfony 6.4 LTS compatibility
           - php: '8.2'
             symfony-version: '^6.4'
@@ -42,7 +42,7 @@ jobs:
           - php: '8.4'
             symfony-version: '^6.4'
             allowed-to-fail: false
-
+            
           # Symfony 7.x current versions
           - php: '8.2'
             symfony-version: '^7.0'
@@ -148,12 +148,7 @@ jobs:
         run: composer update --prefer-dist --no-interaction --no-progress
 
       - name: Validate composer.json and composer.lock
-        run: |
-          if [[ "${{ github.ref }}" == *"beta"* || "${{ github.ref }}" == *"alpha"* || "${{ github.ref }}" == *"rc"* ]]; then
-            composer validate --no-check-version
-          else
-            composer validate --strict
-          fi
+        run: composer validate --strict
 
       - name: Run code style check
         run: composer cs
@@ -168,14 +163,6 @@ jobs:
 
       - name: Run tests
         run: ./vendor/bin/simple-phpunit -v
-
-      - name: Run integration tests (optional)
-        env:
-          DISCOGS_CONSUMER_KEY: ${{ secrets.DISCOGS_CONSUMER_KEY }}
-          DISCOGS_CONSUMER_SECRET: ${{ secrets.DISCOGS_CONSUMER_SECRET }}
-          DISCOGS_PERSONAL_ACCESS_TOKEN: ${{ secrets.DISCOGS_PERSONAL_ACCESS_TOKEN }}
-        run: composer test-integration
-        continue-on-error: true
 
   code-quality:
     runs-on: ubuntu-latest
@@ -208,12 +195,7 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Validate composer.json and composer.lock
-        run: |
-          if [[ "${{ github.ref }}" == *"beta"* || "${{ github.ref }}" == *"alpha"* || "${{ github.ref }}" == *"rc"* ]]; then
-            composer validate --no-check-version
-          else
-            composer validate --strict
-          fi
+        run: composer validate --strict
 
   coverage:
     runs-on: ubuntu-latest
