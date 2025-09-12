@@ -20,10 +20,6 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Richard van den Brand",
-            "email": "richard@vandenbrand.org"
-        },
-        {
             "name": "calliostro",
             "email": "calliostro@gmail.com"
         }
