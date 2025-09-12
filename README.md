@@ -1,4 +1,4 @@
-# 🎵 Discogs Client Bundle for Symfony – Complete Music Database Access
+# ⚡ Discogs Client Bundle for Symfony – Complete Music Database Access
 
 [![Package Version](https://img.shields.io/packagist/v/calliostro/discogs-bundle.svg)](https://packagist.org/packages/calliostro/discogs-bundle)
 [![Total Downloads](https://img.shields.io/packagist/dt/calliostro/discogs-bundle.svg)](https://packagist.org/packages/calliostro/discogs-bundle)
