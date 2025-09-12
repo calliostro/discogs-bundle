@@ -46,13 +46,11 @@ To enable authenticated integration tests in CI/CD, add these secrets to your Gi
 
 Navigate to: **Repository Settings → Secrets and variables → Actions**
 
-| Secret Name                     | Description                      | Where to get it                                                                                        |
-|---------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
-| `DISCOGS_CONSUMER_KEY`          | Your Discogs app consumer key    | [Discogs Developer Settings](https://www.discogs.com/settings/developers)                              |
-| `DISCOGS_CONSUMER_SECRET`       | Your Discogs app consumer secret | [Discogs Developer Settings](https://www.discogs.com/settings/developers)                              |
-| `DISCOGS_PERSONAL_ACCESS_TOKEN` | Your personal access token       | [Discogs Developer Settings](https://www.discogs.com/settings/developers)                              |
-| `DISCOGS_OAUTH_TOKEN`           | OAuth access token (optional)    | [OAuth Flow](https://www.discogs.com/developers/#page:authentication,header:authentication-oauth-flow) |
-| `DISCOGS_OAUTH_TOKEN_SECRET`    | OAuth token secret (optional)    | [OAuth Flow](https://www.discogs.com/developers/#page:authentication,header:authentication-oauth-flow) |
+| Secret Name                     | Description                      | Where to get it                                                           |
+|---------------------------------|----------------------------------|---------------------------------------------------------------------------|
+| `DISCOGS_CONSUMER_KEY`          | Your Discogs app consumer key    | [Discogs Developer Settings](https://www.discogs.com/settings/developers) |
+| `DISCOGS_CONSUMER_SECRET`       | Your Discogs app consumer secret | [Discogs Developer Settings](https://www.discogs.com/settings/developers) |
+| `DISCOGS_PERSONAL_ACCESS_TOKEN` | Your personal access token       | [Discogs Developer Settings](https://www.discogs.com/settings/developers) |
 
 ## Local Development
 
@@ -88,16 +86,10 @@ $env:DISCOGS_CONSUMER_KEY="your-consumer-key"
 $env:DISCOGS_CONSUMER_SECRET="your-consumer-secret"
 $env:DISCOGS_PERSONAL_ACCESS_TOKEN="your-personal-access-token"
 
-# Optional: OAuth tokens for complete OAuth testing
-$env:DISCOGS_OAUTH_TOKEN="your-oauth-token"
-$env:DISCOGS_OAUTH_TOKEN_SECRET="your-oauth-token-secret"
-
 # CMD
 set DISCOGS_CONSUMER_KEY=your-consumer-key
 set DISCOGS_CONSUMER_SECRET=your-consumer-secret
 set DISCOGS_PERSONAL_ACCESS_TOKEN=your-personal-access-token
-set DISCOGS_OAUTH_TOKEN=your-oauth-token
-set DISCOGS_OAUTH_TOKEN_SECRET=your-oauth-token-secret
 ```
 
 ### Getting Credentials
