@@ -20,62 +20,61 @@ final class Configuration implements ConfigurationInterface
         // @phpstan-ignore-next-line: Symfony Config Builder has dynamic method resolution
         $rootNode
             ->children()
-                ->scalarNode('user_agent')
-                    ->defaultValue(
-                        'CalliostroDiscogsBundle/2.0 +https://github.com/calliostro/discogs-bundle',
-                    )
-                    ->info('Freely selectable and valid HTTP user agent identification (required)')
+                ->scalarNode('personal_access_token')
+                    ->info('Your personal access token (recommended - get from https://www.discogs.com/settings/developers)')
+                    ->validate()
+                        ->ifTrue(fn ($v) => \is_string($v) && '' === trim($v))
+                        ->thenInvalid('Personal access token cannot be empty')
+                    ->end()
+                    ->validate()
+                        ->ifTrue(fn ($v) => \is_string($v) && '' !== trim($v) && \strlen(trim($v)) < 10)
+                        ->thenInvalid('Personal access token must be at least 10 characters')
+                    ->end()
                 ->end()
                 ->scalarNode('consumer_key')
-                    ->info('Your consumer key (recommended)')
+                    ->info('Your consumer key (alternative for OAuth applications)')
+                    ->validate()
+                        ->ifTrue(fn ($v) => \is_string($v) && '' === trim($v))
+                        ->thenInvalid('Consumer key cannot be empty')
+                    ->end()
                 ->end()
                 ->scalarNode('consumer_secret')
-                    ->info('Your consumer secret (recommended)')
+                    ->info('Your consumer secret (alternative for OAuth applications)')
+                    ->validate()
+                        ->ifTrue(fn ($v) => \is_string($v) && '' === trim($v))
+                        ->thenInvalid('Consumer secret cannot be empty')
+                    ->end()
+                ->end()
+                ->scalarNode('user_agent')
+                    ->defaultNull()
+                    ->info('HTTP User-Agent header for API requests (optional)')
+                    ->validate()
+                        ->ifTrue(fn ($v) => \is_string($v) && \strlen($v) > 200)
+                        ->thenInvalid('User-Agent cannot be longer than 200 characters')
+                    ->end()
                 ->end()
                 ->arrayNode('throttle')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')
                             ->defaultTrue()
-                            ->info('If activated, a new attempt is made later when the rate limit is reached')
+                            ->info('Rate limiting - retries HTTP 429 with exponential backoff')
                         ->end()
                         ->integerNode('microseconds')
                             ->defaultValue(1000000)
-                            ->info(
-                                'Number of milliseconds to wait until the next attempt when the rate limit is reached',
-                            )
+                            ->info('Number of microseconds to wait until the next attempt when rate limit is reached')
+                            ->validate()
+                                ->ifTrue(fn ($v) => $v < 0)
+                                ->thenInvalid('Throttle microseconds must be a positive integer')
+                            ->end()
+                            ->validate()
+                                ->ifTrue(fn ($v) => $v > 60000000) // 60 seconds max
+                                ->thenInvalid('Throttle microseconds cannot exceed 60 seconds (60000000 microseconds)')
+                            ->end()
                         ->end()
                      ->end()
                 ->end()
-                ->arrayNode('oauth')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->booleanNode('enabled')
-                            ->defaultFalse()
-                            ->info('If enabled, full OAuth 1.0a with access token/secret is used')
-                        ->end()
-                        ->scalarNode('token_provider')
-                            ->defaultValue('calliostro_discogs.hwi_oauth_token_provider')
-                            ->info(
-                                'You can create a service implementing OAuthTokenProviderInterface '.
-                                '(HWIOAuthBundle is supported by default)',
-                            )
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-            ->validate()
-                ->ifTrue(function (array $config): bool {
-                    $oauthEnabled = $config['oauth']['enabled'];
-                    $hasConsumerKey = !empty($config['consumer_key']);
-                    $hasConsumerSecret = !empty($config['consumer_secret']);
-                    $hasTokenProvider = !empty($config['oauth']['token_provider']);
 
-                    return $oauthEnabled && (!$hasConsumerKey || !$hasConsumerSecret || !$hasTokenProvider);
-                })
-                ->thenInvalid(
-                    'OAuth requires consumer_key, consumer_secret, and oauth.token_provider to be configured',
-                )
             ->end()
         ;
 

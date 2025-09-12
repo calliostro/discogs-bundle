@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0-beta.1] – 2025-09-12
+
+### 🚀 Complete Rewrite — Fresh Start
+
+This version represents a complete architectural rewrite. v4.0.0 is essentially a new bundle that happens to have the same name.
+
+### Added
+
+- **Modern PHP 8.1+ Architecture** with full type safety and modern features
+- **Personal Access Token Support** for simple authentication
+- **Built-in OAuth 1.0a** with no external dependencies
+- **All 60 Discogs API Methods** with consistent verb-first naming
+- **Symfony 6.4 | 7.x | 8.x Support** with future compatibility
+- **Zero Configuration Mode** for public API access
+- **Comprehensive Test Suite** with unit and integration tests
+- **Modern Bundle Structure** following all Symfony best practices
+- **Professional Documentation** with clear examples and setup guides
+- **Robust Configuration Validation** with meaningful error messages
+- **Modern Music References** throughout documentation and examples
+
+### Changed
+
+- **Complete API Integration** now based on `calliostro/php-discogs-api` v4.0.0-beta.1
+- **Service Naming** follows modern Symfony conventions with proper aliases
+- **Configuration Structure** simplified and more intuitive
+- **Method Names** use consistent verb-first patterns (e.g., `listArtistReleases()`)
+- **Code Standards** fully compliant with @Symfony and @Symfony:risky rules
+- **Error Handling** improved with better exceptions and validation
+- **Performance** optimized for modern PHP versions
+
+### Removed
+
+- **Legacy Dependencies** – No more Guzzle Services or external OAuth libraries
+- **Backward Compatibility** – This is a fresh start, not an upgrade
+- **Complex Configuration** – Simplified to essential options only
+
+---
+
+## Historical Releases (Pre-v4.0)
+
 ## [3.1.4](https://github.com/calliostro/discogs-bundle/releases/tag/v3.1.4) – 2025-09-11
 
 ### Added
@@ -19,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Improved exception documentation specificity (XML loading exceptions vs generic exceptions)
+- Improved exception documentation specificity (XML loading exceptions vs. generic exceptions)
 - Enhanced test coverage from 96.9% to 100% with comprehensive OAuth token scenarios
 
 ---

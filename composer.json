@@ -1,6 +1,6 @@
 {
     "name": "calliostro/discogs-bundle",
-    "description": "Symfony bundle for the Discogs API — vinyl, music data & integration made easy",
+    "description": "Ultra-lightweight Symfony bundle for the Discogs API — vinyl, music data & integration made easy",
     "type": "symfony-bundle",
     "keywords": [
         "symfony-bundle",
@@ -13,7 +13,8 @@
         "web-api",
         "audio",
         "vinyl",
-        "php8"
+        "php8",
+        "lightweight"
     ],
     "homepage": "https://github.com/calliostro/discogs-bundle",
     "license": "MIT",
@@ -29,7 +30,7 @@
     ],
     "require": {
         "php": "^8.1",
-        "calliostro/php-discogs-api": "^2.1",
+        "calliostro/php-discogs-api": "v4.0.0-beta.1",
         "symfony/config": "^6.4|^7.0|^8.0",
         "symfony/dependency-injection": "^6.4|^7.0|^8.0",
         "symfony/http-kernel": "^6.4|^7.0|^8.0",
@@ -51,16 +52,18 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/simple-phpunit",
-        "test-coverage": "vendor/bin/simple-phpunit --coverage-html coverage --coverage-clover coverage.xml",
+        "test": "vendor/bin/simple-phpunit --testsuite=\"Unit Tests\"",
+        "test-unit": "vendor/bin/simple-phpunit --testsuite=\"Unit Tests\"",
+        "test-integration": "vendor/bin/simple-phpunit --testsuite=\"Integration Tests\"",
+        "test-all": "vendor/bin/simple-phpunit --testsuite=\"All Tests\"",
+        "test-coverage": "vendor/bin/simple-phpunit --testsuite=\"Unit Tests\" --coverage-html coverage --coverage-clover coverage.xml",
+        "test-coverage-all": "vendor/bin/simple-phpunit --testsuite=\"All Tests\" --coverage-html coverage --coverage-clover coverage.xml",
         "cs": "vendor/bin/php-cs-fixer fix --dry-run --diff --verbose",
         "cs-fix": "vendor/bin/php-cs-fixer fix --verbose",
         "analyse": "vendor/bin/phpstan analyse src --level=8",
         "analyse-generics": "vendor/bin/phpstan analyse src --level=8 --configuration phpstan/generic-baseline.neon"
     },
     "minimum-stability": "stable",
-    "prefer-stable": true,
-    "suggest": {
-        "hwi/HWIOAuthBundle": "Enable OAuth support using HWIOAuthBundle"
-    }
+    "prefer-stable": true
+
 }

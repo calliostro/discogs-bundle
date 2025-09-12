@@ -15,6 +15,11 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 final class CalliostroDiscogsExtension extends Extension
 {
+    public function getAlias(): string
+    {
+        return 'calliostro_discogs';
+    }
+
     /**
      * @throws \Exception When the XML service configuration file cannot be loaded
      */
@@ -26,62 +31,64 @@ final class CalliostroDiscogsExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        $params = [
-            'headers' => ['User-Agent' => $config['user_agent']],
-        ];
+        // Configure client based on authentication method
+        $this->configureClient($container, $config);
+    }
 
-        $this->configureThrottling($container, $config, $params);
-        $this->configureOAuth($container, $config, $params, $loader);
-
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function configureClient(ContainerBuilder $container, array $config): void
+    {
         $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
-        $clientDefinition->replaceArgument(0, $params);
-    }
 
-    /**
-     * @param array<string, mixed> $config
-     * @param array<string, mixed> $params
-     */
-    private function configureThrottling(ContainerBuilder $container, array $config, array &$params): void
-    {
-        if (!$config['throttle']['enabled']) {
-            return;
-        }
-
-        $throttleDefinition = $container->getDefinition('calliostro_discogs.throttle_subscriber');
-        $throttleDefinition->replaceArgument(0, $config['throttle']['microseconds']);
-
-        $throttleHandlerDefinition = $container->getDefinition('calliostro_discogs.throttle_handler_stack');
-        $throttleHandlerDefinition->replaceArgument(0, new Reference('calliostro_discogs.throttle_subscriber'));
-
-        $params['handler'] = new Reference('calliostro_discogs.throttle_handler_stack');
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     * @param array<string, mixed> $params
-     *
-     * @throws \Exception When OAuth service configuration file cannot be loaded
-     */
-    private function configureOAuth(ContainerBuilder $container, array $config, array &$params, Loader\XmlFileLoader $loader): void
-    {
-        if ($config['oauth']['enabled']) {
-            $loader->load('oauth.xml');
-
-            $subscriber = $container->getDefinition('calliostro_discogs.subscriber.oauth');
-            $subscriber->replaceArgument(0, new Reference($config['oauth']['token_provider']));
-            $subscriber->replaceArgument(1, $config['consumer_key']);
-            $subscriber->replaceArgument(2, $config['consumer_secret']);
-
-            $oauthHandlerDefinition = $container->getDefinition('calliostro_discogs.oauth_handler_stack');
-            $oauthHandlerDefinition->replaceArgument(0, new Reference('calliostro_discogs.subscriber.oauth'));
-
-            $params['handler'] = new Reference('calliostro_discogs.oauth_handler_stack');
-        } elseif (isset($config['consumer_key'], $config['consumer_secret'])) {
-            $params['headers']['Authorization'] = \sprintf(
-                'Discogs key=%s, secret=%s',
+        if (!empty($config['personal_access_token'])) {
+            // Personal Access Token authentication (recommended for personal use)
+            $clientDefinition->setFactory(['Calliostro\Discogs\ClientFactory', 'createWithPersonalAccessToken']);
+            $clientDefinition->setArguments([
+                $config['personal_access_token'],
+                $this->getClientOptions($container, $config),
+            ]);
+        } elseif (!empty($config['consumer_key']) && !empty($config['consumer_secret'])) {
+            // Consumer credentials authentication
+            $clientDefinition->setFactory(['Calliostro\Discogs\ClientFactory', 'createWithConsumerCredentials']);
+            $clientDefinition->setArguments([
                 $config['consumer_key'],
                 $config['consumer_secret'],
-            );
+                $this->getClientOptions($container, $config),
+            ]);
+        } else {
+            // Anonymous client (rate-limited)
+            $clientDefinition->setFactory(['Calliostro\Discogs\ClientFactory', 'create']);
+            $clientDefinition->setArguments([
+                $this->getClientOptions($container, $config),
+            ]);
         }
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return array<string, mixed>
+     */
+    private function getClientOptions(ContainerBuilder $container, array $config): array
+    {
+        $options = [];
+
+        // Only set the User-Agent header if explicitly configured
+        if (!empty($config['user_agent'])) {
+            $options['headers'] = [
+                'User-Agent' => $config['user_agent'],
+            ];
+        }
+
+        // Add throttling handler if enabled
+        if ($config['throttle']['enabled']) {
+            $throttleHandlerDefinition = $container->getDefinition('calliostro_discogs.throttle_handler_stack');
+            $throttleHandlerDefinition->replaceArgument(0, (int) $config['throttle']['microseconds']);
+            $options['handler'] = new Reference('calliostro_discogs.throttle_handler_stack');
+        }
+
+        return $options;
     }
 }
