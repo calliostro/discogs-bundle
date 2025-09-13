@@ -80,14 +80,6 @@ jobs:
             stability: 'dev'
             allowed-to-fail: true
 
-          # Development stability tests
-          - php: '8.4'
-            stability: 'dev'
-            allowed-to-fail: true
-          - php: '8.5'
-            stability: 'dev'
-            allowed-to-fail: true
-
     name: "PHP ${{ matrix.php }}${{ matrix.symfony-version && format(' | Symfony {0}', matrix.symfony-version) || '' }}${{ matrix.stability && format(' | {0}', matrix.stability) || '' }}"
 
     continue-on-error: ${{ matrix.allowed-to-fail }}
