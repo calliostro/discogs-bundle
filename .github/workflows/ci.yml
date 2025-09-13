@@ -22,16 +22,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Core PHP version testing
-          - php: '8.1'
-            allowed-to-fail: false
-          - php: '8.2'
-            allowed-to-fail: false
-          - php: '8.3'
-            allowed-to-fail: false
-          - php: '8.4'
-            allowed-to-fail: false
-            
           # Symfony 6.4 LTS compatibility
           - php: '8.2'
             symfony-version: '^6.4'
