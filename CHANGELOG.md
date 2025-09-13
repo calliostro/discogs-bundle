@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.0.0-beta.1](https://github.com/calliostro/discogs-bundle/releases/tag/v4.0.0-beta.1) – 2025-09-12
+## [4.0.0-beta.2](https://github.com/calliostro/discogs-bundle/releases/tag/v4.0.0-beta.2) – 2025-09-14
 
 ### 🚀 Complete Rewrite — Fresh Start
 
@@ -13,33 +13,40 @@ This version represents a complete architectural rewrite. v4.0.0 is essentially 
 
 ### Added
 
-- **Modern PHP 8.1+ Architecture** with full type safety and modern features
 - **Personal Access Token Support** for simple authentication
-- **Built-in OAuth 1.0a** with no external dependencies
-- **All 60 Discogs API Methods** with consistent verb-first naming
-- **Symfony 6.4 | 7.x | 8.x Support** with future compatibility
+- **All 60 Discogs API Methods** with consistent verb-first naming and modern parameter style
 - **Zero Configuration Mode** for public API access
+- **Named Parameter Support** – Methods accept individual parameters in camelCase instead of arrays
+- **Built-in OAuth 1.0a** with no external dependencies
+- **Symfony Rate Limiter Integration** – Optional advanced rate limiting with configurable policies (sliding_window, fixed_window, token_bucket)
+- **Symfony 6.4 | 7.x | 8.x Support** with future compatibility
+- **Modern PHP 8.1+ Architecture** with full type safety and modern features
 - **Comprehensive Test Suite** with unit and integration tests
-- **Modern Bundle Structure** following all Symfony best practices
 - **Professional Documentation** with clear examples and setup guides
+- **Modern Bundle Structure** following all Symfony best practices
 - **Robust Configuration Validation** with meaningful error messages
 - **Modern Music References** throughout documentation and examples
 
 ### Changed
 
-- **Complete API Integration** now based on `calliostro/php-discogs-api` v4.0.0-beta.1
-- **Service Naming** follows modern Symfony conventions with proper aliases
 - **Configuration Structure** simplified and more intuitive
+- **Method Parameter Style** – All methods now accept individual parameters (e.g., `getArtist(artistId: 123)`) instead of arrays (`getArtist(['id' => '123'])`)
 - **Method Names** use consistent verb-first patterns (e.g., `listArtistReleases()`)
-- **Code Standards** fully compliant with @Symfony and @Symfony:risky rules
+- **Parameter Naming** – All parameters use camelCase convention (e.g., `perPage` instead of `per_page`)
+- **Rate Limiting** – Replaced simple throttle system with Symfony Rate Limiter component integration
+- **Service Naming** follows modern Symfony conventions with proper aliases
 - **Error Handling** improved with better exceptions and validation
 - **Performance** optimized for modern PHP versions
+- **Complete API Integration** now based on `calliostro/php-discogs-api` v4.0.0-beta.2
+- **Code Standards** fully compliant with @Symfony and @Symfony:risky rules
 
 ### Removed
 
+- **Complex Configuration** – Simplified to essential options only
+- **Array Parameter Style** – Methods no longer accept parameter arrays
+- **Throttle Configuration** – Legacy `throttle` config replaced with modern `rate_limiter` integration
 - **Legacy Dependencies** – No more Guzzle Services or external OAuth libraries
 - **Backward Compatibility** – This is a fresh start, not an upgrade
-- **Complex Configuration** – Simplified to essential options only
 
 ---
 

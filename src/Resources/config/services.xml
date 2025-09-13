@@ -1,23 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<container xmlns="http://symfony.com/schema/dic/services"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
         <!-- Main Discogs API Client -->
-        <service id="calliostro_discogs.discogs_client" class="Calliostro\Discogs\DiscogsApiClient" public="true">
-            <factory class="Calliostro\Discogs\ClientFactory" method="create" />
-            <argument type="collection" />
-        </service>
-
-        <!-- Throttle Handler for Rate Limiting -->
-        <service id="calliostro_discogs.throttle_handler_stack" class="GuzzleHttp\HandlerStack" public="false">
-            <factory class="Calliostro\DiscogsBundle\ThrottleHandlerStackFactory" method="factory" />
-            <argument>null</argument>
+        <service id="calliostro_discogs.discogs_client" class="Calliostro\Discogs\DiscogsClient" public="true">
+            <factory class="Calliostro\Discogs\DiscogsClientFactory" method="create"/>
+            <argument type="collection"/>
         </service>
 
         <!-- Primary alias for autowiring -->
-        <service id="Calliostro\Discogs\DiscogsApiClient" alias="calliostro_discogs.discogs_client" public="false" />
+        <service id="Calliostro\Discogs\DiscogsClient" alias="calliostro_discogs.discogs_client" public="false"/>
     </services>
 </container>

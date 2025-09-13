@@ -1,34 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Calliostro\DiscogsBundle\Tests\Unit;
 
-use Calliostro\Discogs\DiscogsApiClient;
-use Calliostro\DiscogsBundle\ThrottleHandlerStackFactory;
+use Calliostro\Discogs\DiscogsClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 
-/**
- * Enhanced unit tests with proper mocking instead of real API calls.
- */
-final class DiscogsApiClientMockTest extends TestCase
+final class DiscogsClientMockTest extends UnitTestCase
 {
     private MockHandler $mockHandler;
     private HandlerStack $handlerStack;
     private Client $httpClient;
-    private DiscogsApiClient $client;
-
-    protected function setUp(): void
-    {
-        $this->mockHandler = new MockHandler();
-        $this->handlerStack = HandlerStack::create($this->mockHandler);
-        $this->httpClient = new Client(['handler' => $this->handlerStack]);
-
-        // Use reflection to create a DiscogsApiClient with our mocked HTTP client
-        $this->client = new DiscogsApiClient($this->httpClient);
-    }
+    private DiscogsClient $client;
 
     public function testGetArtistSuccess(): void
     {
@@ -40,10 +27,10 @@ final class DiscogsApiClientMockTest extends TestCase
         ];
 
         $this->mockHandler->append(
-            new Response(200, ['Content-Type' => 'application/json'], json_encode($expectedResponse))
+            new Response(200, ['Content-Type' => 'application/json'], json_encode($expectedResponse) ?: '{}')
         );
 
-        $result = $this->client->getArtist(['id' => '1']);
+        $result = $this->client->getArtist(artistId: 1);
 
         $this->assertEquals($expectedResponse, $result);
     }
@@ -56,7 +43,7 @@ final class DiscogsApiClientMockTest extends TestCase
 
         $this->expectException(\GuzzleHttp\Exception\ClientException::class);
 
-        $this->client->getArtist(['id' => '999999999']);
+        $this->client->getArtist(artistId: 999999999);
     }
 
     public function testSearchWithResults(): void
@@ -77,10 +64,10 @@ final class DiscogsApiClientMockTest extends TestCase
         ];
 
         $this->mockHandler->append(
-            new Response(200, ['Content-Type' => 'application/json'], json_encode($expectedResponse))
+            new Response(200, ['Content-Type' => 'application/json'], json_encode($expectedResponse) ?: '{}')
         );
 
-        $result = $this->client->search(['q' => 'Billie Eilish', 'type' => 'release']);
+        $result = $this->client->search(q: 'Billie Eilish', type: 'release');
 
         $this->assertEquals($expectedResponse, $result);
         $this->assertCount(1, $result['results']);
@@ -98,10 +85,10 @@ final class DiscogsApiClientMockTest extends TestCase
         ];
 
         $this->mockHandler->append(
-            new Response(200, ['Content-Type' => 'application/json'], json_encode($expectedResponse))
+            new Response(200, ['Content-Type' => 'application/json'], json_encode($expectedResponse) ?: '{}')
         );
 
-        $result = $this->client->search(['q' => 'NonexistentModernArtist2024']);
+        $result = $this->client->search(q: 'NonexistentModernArtist2024');
 
         $this->assertEquals($expectedResponse, $result);
         $this->assertEmpty($result['results']);
@@ -109,21 +96,20 @@ final class DiscogsApiClientMockTest extends TestCase
 
     public function testRateLimitHandling(): void
     {
-        // First request gets rate limited, second succeeds
+        // Mock a rate limit response
         $this->mockHandler->append(
-            new Response(429, ['Retry-After' => '1'], '{"message": "You are making requests too quickly."}'),
-            new Response(200, ['Content-Type' => 'application/json'], '{"id": 1, "name": "Test Artist"}')
+            new Response(429, ['Retry-After' => '1'], '{"message": "You are making requests too quickly."}')
         );
 
-        // Use the throttle handler stack for this test
-        $throttleStack = ThrottleHandlerStackFactory::factory(100000); // 0.1 seconds for fast testing
-        $throttleStack->setHandler($this->mockHandler);
-        $throttleClient = new Client(['handler' => $throttleStack, 'http_errors' => false]);
-        $apiClient = new DiscogsApiClient($throttleClient);
+        // Without rate limiter middleware, the client gets the 429 response directly
+        $client = new Client(['handler' => $this->handlerStack, 'http_errors' => false]);
+        $apiClient = new DiscogsClient($client);
 
-        $result = $apiClient->getArtist(['id' => '1']);
+        // This test verifies that rate limit responses are handled properly
+        $result = $apiClient->getArtist(artistId: '1');
 
-        $this->assertEquals(['id' => 1, 'name' => 'Test Artist'], $result);
+        // The client should return the 429 rate limit response
+        $this->assertEquals(['message' => 'You are making requests too quickly.'], $result);
     }
 
     public function testMultipleRequestsWithMocking(): void
@@ -136,13 +122,13 @@ final class DiscogsApiClientMockTest extends TestCase
 
         foreach ($responses as $response) {
             $this->mockHandler->append(
-                new Response(200, ['Content-Type' => 'application/json'], json_encode($response))
+                new Response(200, ['Content-Type' => 'application/json'], json_encode($response) ?: '{}')
             );
         }
 
         $results = [];
         for ($i = 1; $i <= 3; ++$i) {
-            $results[] = $this->client->getArtist(['id' => (string) $i]);
+            $results[] = $this->client->getArtist(artistId: $i);
         }
 
         $this->assertCount(3, $results);
@@ -161,7 +147,7 @@ final class DiscogsApiClientMockTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Invalid JSON response');
 
-        $this->client->getArtist(['id' => '1']);
+        $this->client->getArtist(artistId: 1);
     }
 
     public function testServerError(): void
@@ -172,7 +158,7 @@ final class DiscogsApiClientMockTest extends TestCase
 
         $this->expectException(\GuzzleHttp\Exception\ServerException::class);
 
-        $this->client->getArtist(['id' => '1']);
+        $this->client->getArtist(artistId: 1);
     }
 
     public function testClientWithCustomHeaders(): void
@@ -191,13 +177,23 @@ final class DiscogsApiClientMockTest extends TestCase
             'headers' => $customHeaders,
         ]);
 
-        $apiClient = new DiscogsApiClient($customClient);
-        $result = $apiClient->getArtist(['id' => '1']);
+        $apiClient = new DiscogsClient($customClient);
+        $result = $apiClient->getArtist(artistId: 1);
 
         $this->assertEquals(['id' => 1, 'name' => 'Test'], $result);
 
         // Verify the request was made (check last request)
         $lastRequest = $this->mockHandler->getLastRequest();
         $this->assertNotNull($lastRequest);
+    }
+
+    protected function setUp(): void
+    {
+        $this->mockHandler = new MockHandler();
+        $this->handlerStack = HandlerStack::create($this->mockHandler);
+        $this->httpClient = new Client(['handler' => $this->handlerStack]);
+
+        // Use reflection to create a DiscogsClient with our mocked HTTP client
+        $this->client = new DiscogsClient($this->httpClient);
     }
 }

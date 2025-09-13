@@ -1,49 +1,87 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Calliostro\DiscogsBundle\Tests\Unit;
 
 use Calliostro\DiscogsBundle\DependencyInjection\CalliostroDiscogsExtension;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-final class CalliostroDiscogsExtensionTest extends TestCase
+final class CalliostroDiscogsExtensionTest extends UnitTestCase
 {
     public function testLoadWithMinimalConfig(): void
     {
-        $container = new ContainerBuilder();
+        $container = $this->createContainerBuilder();
         $extension = new CalliostroDiscogsExtension();
 
         $extension->load([], $container);
 
-        $this->assertTrue($container->hasDefinition('calliostro_discogs.discogs_client'));
+        $this->assertDefinitionExists($container, 'calliostro_discogs.discogs_client');
     }
 
-    public function testLoadWithThrottleEnabled(): void
+    public function testLoadWithRateLimiter(): void
     {
-        $container = new ContainerBuilder();
+        if (!class_exists('Symfony\\Component\\RateLimiter\\RateLimiterFactory')) {
+            $this->markTestSkipped('symfony/rate-limiter is not installed');
+        }
+
+        $container = $this->createContainerBuilder();
         $extension = new CalliostroDiscogsExtension();
 
         $config = [
             [
-                'throttle' => [
-                    'enabled' => true,
-                    'microseconds' => 500000,
-                ],
+                'rate_limiter' => 'my_rate_limiter_service',
             ],
         ];
 
         $extension->load($config, $container);
 
-        // In v4.0.0, throttling is handled differently - no separate subscriber
-        $this->assertTrue($container->hasDefinition('calliostro_discogs.throttle_handler_stack'));
+        // Should create rate limiter middleware and handler stack
+        $this->assertDefinitionExists($container, 'calliostro_discogs.rate_limiter_middleware');
+        $this->assertDefinitionExists($container, 'calliostro_discogs.rate_limiter_handler_stack');
 
         // Verify the client is configured properly
-        $this->assertTrue($container->hasDefinition('calliostro_discogs.discogs_client'));
+        $this->assertDefinitionExists($container, 'calliostro_discogs.discogs_client');
+    }
+
+    /**
+     * @runInSeparateProcess
+     *
+     * @preserveGlobalState disabled
+     */
+    public function testLoadWithRateLimiterWhenComponentNotAvailable(): void
+    {
+        // This test runs in a separate process where we can mock the class_exists function
+        // by using PHP's namespace fallback behavior
+
+        // Create a mock function in our namespace that overrides class_exists
+        eval('
+            namespace Calliostro\DiscogsBundle\DependencyInjection;
+            function class_exists($className) {
+                if ($className === "Symfony\\\\Component\\\\RateLimiter\\\\RateLimiterFactory") {
+                    return false; // Simulate missing component
+                }
+                return \\class_exists($className);
+            }
+        ');
+
+        $container = $this->createContainerBuilder();
+        $extension = new CalliostroDiscogsExtension();
+
+        $config = [
+            [
+                'rate_limiter' => 'my_rate_limiter_service',
+            ],
+        ];
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('To use the rate_limiter configuration, you must install symfony/rate-limiter. Run: composer require symfony/rate-limiter');
+
+        $extension->load($config, $container);
     }
 
     public function testLoadWithConsumerKeyAndSecretOnly(): void
     {
-        $container = new ContainerBuilder();
+        $container = $this->createContainerBuilder();
         $extension = new CalliostroDiscogsExtension();
 
         $config = [
@@ -55,45 +93,30 @@ final class CalliostroDiscogsExtensionTest extends TestCase
 
         $extension->load($config, $container);
 
-        $this->assertTrue($container->hasDefinition('calliostro_discogs.discogs_client'));
-
-        // Check that the client is configured with proper factory method and arguments
-        $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
-        $factory = $clientDefinition->getFactory();
-        $this->assertEquals(['Calliostro\Discogs\ClientFactory', 'createWithConsumerCredentials'], $factory);
-
-        // Check that the consumer key and secret are passed as arguments
-        $arguments = $clientDefinition->getArguments();
-        $this->assertCount(3, $arguments);
-        $this->assertEquals('test_key', $arguments[0]);
-        $this->assertEquals('test_secret', $arguments[1]);
+        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
+            ['Calliostro\Discogs\DiscogsClientFactory', 'createWithConsumerCredentials']);
+        $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 3);
+        $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 0, 'test_key');
+        $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 1, 'test_secret');
     }
 
-    public function testLoadWithThrottleDisabled(): void
+    public function testLoadWithoutRateLimiter(): void
     {
-        $container = new ContainerBuilder();
+        $container = $this->createContainerBuilder();
         $extension = new CalliostroDiscogsExtension();
 
-        $config = [
-            [
-                'throttle' => [
-                    'enabled' => false,
-                ],
-            ],
-        ];
+        $config = [[]]; // Empty configuration
 
         $extension->load($config, $container);
 
-        $this->assertTrue($container->hasDefinition('calliostro_discogs.discogs_client'));
-        // When the throttle is disabled, the basic client factory should be used
-        $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
-        $factory = $clientDefinition->getFactory();
-        $this->assertEquals(['Calliostro\Discogs\ClientFactory', 'create'], $factory);
+        // When no rate limiter is configured, the basic client factory should be used
+        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
+            ['Calliostro\Discogs\DiscogsClientFactory', 'create']);
     }
 
     public function testLoadWithPersonalAccessToken(): void
     {
-        $container = new ContainerBuilder();
+        $container = $this->createContainerBuilder();
         $extension = new CalliostroDiscogsExtension();
 
         $config = [
@@ -104,22 +127,15 @@ final class CalliostroDiscogsExtensionTest extends TestCase
 
         $extension->load($config, $container);
 
-        $this->assertTrue($container->hasDefinition('calliostro_discogs.discogs_client'));
-
-        // Check that the client is configured with a personal access token factory
-        $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
-        $factory = $clientDefinition->getFactory();
-        $this->assertEquals(['Calliostro\Discogs\ClientFactory', 'createWithPersonalAccessToken'], $factory);
-
-        // Check that the token is passed as the first argument
-        $arguments = $clientDefinition->getArguments();
-        $this->assertCount(2, $arguments);
-        $this->assertEquals('test_token_123', $arguments[0]);
+        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
+            ['Calliostro\Discogs\DiscogsClientFactory', 'createWithPersonalAccessToken']);
+        $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 2);
+        $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 0, 'test_token_123');
     }
 
     public function testLoadWithCustomUserAgent(): void
     {
-        $container = new ContainerBuilder();
+        $container = $this->createContainerBuilder();
         $extension = new CalliostroDiscogsExtension();
 
         $config = [
@@ -130,11 +146,11 @@ final class CalliostroDiscogsExtensionTest extends TestCase
 
         $extension->load($config, $container);
 
-        $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
-        $factory = $clientDefinition->getFactory();
-        $this->assertEquals(['Calliostro\Discogs\ClientFactory', 'create'], $factory);
+        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
+            ['Calliostro\Discogs\DiscogsClientFactory', 'create']);
 
-        $arguments = $clientDefinition->getArguments();
+        $definition = $container->getDefinition('calliostro_discogs.discogs_client');
+        $arguments = $definition->getArguments();
         $this->assertIsArray($arguments[0]);
         $this->assertArrayHasKey('headers', $arguments[0]);
         $this->assertEquals('CustomAgent/1.0', $arguments[0]['headers']['User-Agent']);
@@ -142,7 +158,7 @@ final class CalliostroDiscogsExtensionTest extends TestCase
 
     public function testLoadWithPersonalAccessTokenAndUserAgent(): void
     {
-        $container = new ContainerBuilder();
+        $container = $this->createContainerBuilder();
         $extension = new CalliostroDiscogsExtension();
 
         $config = [
@@ -154,20 +170,45 @@ final class CalliostroDiscogsExtensionTest extends TestCase
 
         $extension->load($config, $container);
 
-        $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
-        $factory = $clientDefinition->getFactory();
-        $this->assertEquals(['Calliostro\Discogs\ClientFactory', 'createWithPersonalAccessToken'], $factory);
+        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
+            ['Calliostro\Discogs\DiscogsClientFactory', 'createWithPersonalAccessToken']);
+        $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 2);
+        $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 0, 'test_token_123');
 
-        // Check that arguments include token and options
-        $arguments = $clientDefinition->getArguments();
-        $this->assertCount(2, $arguments); // Token + options
-        $this->assertEquals('test_token_123', $arguments[0]);
-        $this->assertIsArray($arguments[1]); // Options
-
-        // Check that user_agent is embedded in options headers
+        $definition = $container->getDefinition('calliostro_discogs.discogs_client');
+        $arguments = $definition->getArguments();
         $options = $arguments[1];
         $this->assertArrayHasKey('headers', $options);
-        $this->assertArrayHasKey('User-Agent', $options['headers']);
         $this->assertEquals('TestApp/1.0', $options['headers']['User-Agent']);
+    }
+
+    public function testRateLimiterIntegration(): void
+    {
+        if (!class_exists('Symfony\\Component\\RateLimiter\\RateLimiterFactory')) {
+            $this->markTestSkipped('symfony/rate-limiter is not installed');
+        }
+
+        $container = $this->createContainerBuilder();
+        $extension = new CalliostroDiscogsExtension();
+
+        $config = [
+            [
+                'rate_limiter' => 'my_rate_limiter',
+                'personal_access_token' => 'test_token',
+            ],
+        ];
+
+        $extension->load($config, $container);
+
+        // Should create rate limiter services
+        $this->assertTrue($container->hasDefinition('calliostro_discogs.rate_limiter_handler_stack'));
+        $this->assertTrue($container->hasDefinition('calliostro_discogs.rate_limiter_middleware'));
+
+        $definition = $container->getDefinition('calliostro_discogs.discogs_client');
+        $arguments = $definition->getArguments();
+        $options = $arguments[1] ?? []; // Second argument for personal access token factory
+
+        // Should have handler option pointing to rate limiter stack
+        $this->assertArrayHasKey('handler', $options);
     }
 }

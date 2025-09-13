@@ -2,7 +2,7 @@
 
 namespace Calliostro\DiscogsBundle\Tests\Integration;
 
-use Calliostro\Discogs\DiscogsApiClient;
+use Calliostro\Discogs\DiscogsClient;
 use Calliostro\DiscogsBundle\Tests\Fixtures\TestKernel;
 use GuzzleHttp\Exception\ClientException;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class IntegrationTestCase extends TestCase
 {
-    protected DiscogsApiClient $client;
+    protected DiscogsClient $client;
 
     /**
      * Create a test kernel with the given configuration.

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Calliostro\DiscogsBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
@@ -8,11 +10,6 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * This is the class that loads and manages your bundle configuration.
- *
- * To learn more, see {@link https://symfony.com/doc/current/cookbook/bundles/extension.html}
- */
 final class CalliostroDiscogsExtension extends Extension
 {
     public function getAlias(): string
@@ -44,14 +41,14 @@ final class CalliostroDiscogsExtension extends Extension
 
         if (!empty($config['personal_access_token'])) {
             // Personal Access Token authentication (recommended for personal use)
-            $clientDefinition->setFactory(['Calliostro\Discogs\ClientFactory', 'createWithPersonalAccessToken']);
+            $clientDefinition->setFactory(['Calliostro\\Discogs\\DiscogsClientFactory', 'createWithPersonalAccessToken']);
             $clientDefinition->setArguments([
                 $config['personal_access_token'],
                 $this->getClientOptions($container, $config),
             ]);
         } elseif (!empty($config['consumer_key']) && !empty($config['consumer_secret'])) {
             // Consumer credentials authentication
-            $clientDefinition->setFactory(['Calliostro\Discogs\ClientFactory', 'createWithConsumerCredentials']);
+            $clientDefinition->setFactory(['Calliostro\\Discogs\\DiscogsClientFactory', 'createWithConsumerCredentials']);
             $clientDefinition->setArguments([
                 $config['consumer_key'],
                 $config['consumer_secret'],
@@ -59,7 +56,7 @@ final class CalliostroDiscogsExtension extends Extension
             ]);
         } else {
             // Anonymous client (rate-limited)
-            $clientDefinition->setFactory(['Calliostro\Discogs\ClientFactory', 'create']);
+            $clientDefinition->setFactory(['Calliostro\\Discogs\\DiscogsClientFactory', 'create']);
             $clientDefinition->setArguments([
                 $this->getClientOptions($container, $config),
             ]);
@@ -77,18 +74,53 @@ final class CalliostroDiscogsExtension extends Extension
 
         // Only set the User-Agent header if explicitly configured
         if (!empty($config['user_agent'])) {
-            $options['headers'] = [
-                'User-Agent' => $config['user_agent'],
-            ];
+            $options['headers'] = ['User-Agent' => $config['user_agent']];
         }
 
-        // Add throttling handler if enabled
-        if ($config['throttle']['enabled']) {
-            $throttleHandlerDefinition = $container->getDefinition('calliostro_discogs.throttle_handler_stack');
-            $throttleHandlerDefinition->replaceArgument(0, (int) $config['throttle']['microseconds']);
-            $options['handler'] = new Reference('calliostro_discogs.throttle_handler_stack');
+        // Configure rate limiting if requested
+        if (!empty($config['rate_limiter'])) {
+            $this->configureSymfonyRateLimiter($container, $config['rate_limiter'], $options);
         }
 
         return $options;
+    }
+
+    /**
+     * Configure Symfony Rate Limiter integration.
+     *
+     * @param array<string, mixed> &$options
+     */
+    private function configureSymfonyRateLimiter(ContainerBuilder $container, string $rateLimiterService, array &$options): void
+    {
+        // Check if the symfony/rate-limiter component is available
+        if (!$this->isRateLimiterAvailable()) {
+            throw new \LogicException('To use the rate_limiter configuration, you must install symfony/rate-limiter. Run: composer require symfony/rate-limiter');
+        }
+
+        // Create the rate limiter middleware service
+        $middlewareDefinition = $container->register('calliostro_discogs.rate_limiter_middleware', 'Calliostro\\DiscogsBundle\\Middleware\\RateLimiterMiddleware');
+        $middlewareDefinition->setArguments([
+            new Reference($rateLimiterService),
+            'discogs_api', // Default limiter key
+        ]);
+
+        // Create a handler stack with the rate limiter middleware
+        $handlerDefinition = $container->register('calliostro_discogs.rate_limiter_handler_stack', 'GuzzleHttp\\HandlerStack');
+        $handlerDefinition->setFactory(['GuzzleHttp\\HandlerStack', 'create']);
+        $handlerDefinition->addMethodCall('push', [
+            new Reference('calliostro_discogs.rate_limiter_middleware'),
+            'rate_limiter',
+        ]);
+
+        $options['handler'] = new Reference('calliostro_discogs.rate_limiter_handler_stack');
+    }
+
+    /**
+     * Check if the symfony/rate-limiter component is available.
+     * This method is protected to allow testing.
+     */
+    protected function isRateLimiterAvailable(): bool
+    {
+        return class_exists('Symfony\\Component\\RateLimiter\\RateLimiterFactory');
     }
 }

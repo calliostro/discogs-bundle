@@ -37,10 +37,8 @@ calliostro_discogs:
     # Optional: HTTP User-Agent header for API requests
     # user_agent: 'MyApp/1.0 +https://myapp.com'
     
-    # Optional: Rate limiting (default values shown)
-    # throttle:
-    #     enabled: true
-    #     microseconds: 1000000
+    # Optional: Professional rate limiting (requires symfony/rate-limiter)
+    # rate_limiter: discogs_api       # Your configured RateLimiterFactory service
 ```
 
 **Personal Access Token:** You need to [get your token](https://www.discogs.com/settings/developers) from Discogs to access your account data and get higher rate limits. For read-only operations on public data, you can use anonymous access.
@@ -59,15 +57,15 @@ calliostro_discogs:
 
 namespace App\Controller;
 
-use Calliostro\Discogs\DiscogsApiClient;
+use Calliostro\Discogs\DiscogsClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class MusicController
 {
-    public function artistInfo(string $id, DiscogsApiClient $client): JsonResponse
+    public function artistInfo(string $id, DiscogsClient $client): JsonResponse
     {
-        $artist = $client->getArtist(['id' => $id]);
-        $releases = $client->listArtistReleases(['id' => $id, 'per_page' => 5]);
+        $artist = $client->getArtist(artistId: $id);
+        $releases = $client->listArtistReleases(artistId: $id, perPage: 5);
 
         return new JsonResponse([
             'artist' => $artist['name'],
@@ -82,36 +80,37 @@ class MusicController
 
 ```php
 // Requires Personal Access Token
-$collection = $client->listCollectionItems(['username' => 'your-username']);
-$wantlist = $client->getUserWantlist(['username' => 'your-username']);
+$collection = $client->listCollectionItems(username: 'your-username', folderId: 0);
+$wantlist = $client->getUserWantlist(username: 'your-username');
 
-$client->addToCollection([
-    'folder_id' => 1,
-    'release_id' => 30359313, // Billie Eilish - Happier Than Ever
-]);
+$client->addToCollection(
+    username: 'your-username',
+    folderId: 1,
+    releaseId: 30359313 // Billie Eilish - Happier Than Ever
+);
 
-$client->addToWantlist(['release_id' => 28409710]); // Taylor Swift - Midnights
+$client->addToWantlist(username: 'your-username', releaseId: 28409710); // Taylor Swift - Midnights
 ```
 
 ### Search and Discovery
 
 ```php
-$results = $client->search([
-    'q' => 'Billie Eilish',
-    'type' => 'artist',
-]);
+$results = $client->search(
+    q: 'Billie Eilish',
+    type: 'artist'
+);
 
-$releases = $client->listArtistReleases(['id' => '4470662']); // Billie Eilish
-$release = $client->getRelease(['id' => '30359313']); // Happier Than Ever
-$master = $client->getMaster(['id' => '2835729']); // Midnights master
-$label = $client->getLabel(['id' => '12677']); // Interscope Records
+$releases = $client->listArtistReleases(artistId: 4470662);  // Billie Eilish
+$release = $client->getRelease(releaseId: 30359313);         // Happier Than Ever
+$master = $client->getMaster(masterId: 2835729);             // Midnights master
+$label = $client->getLabel(labelId: 12677);                  // Interscope Records
 ```
 
 ## ✨ Key Features
 
 - **Ultra-Lightweight** – Minimal Symfony integration with zero bloat for the ultra-lightweight Discogs client
 - **Complete API Coverage** – All 60 Discogs API endpoints supported
-- **Direct API Calls** – `$client->getArtist()` maps to `/artists/{id}`, no abstractions
+- **Direct API Calls** – `$client->getArtist(id: 123)` maps to `/artists/{id}`, no abstractions
 - **Type Safe + IDE Support** – Full PHP 8.1+ types, PHPStan Level 8, method autocomplete  
 - **Symfony Native** – Seamless autowiring with Symfony 6.4, 7.x & 8.x
 - **Future-Ready** – PHP 8.5 and Symfony 8.0 compatible (beta/dev testing)
@@ -145,22 +144,22 @@ $label = $client->getLabel(['id' => '12677']); // Interscope Records
 
 namespace App\Service;
 
-use Calliostro\Discogs\DiscogsApiClient;
+use Calliostro\Discogs\DiscogsClient;
 
 class MusicService
 {
     public function __construct(
-        private readonly DiscogsApiClient $client
+        private readonly DiscogsClient $client
     ) {
     }
 
     public function getArtistWithReleases(int $artistId): array
     {
-        $artist = $this->client->getArtist(['id' => $artistId]);
-        $releases = $this->client->listArtistReleases([
-            'id' => $artistId,
-            'per_page' => 10,
-        ]);
+        $artist = $this->client->getArtist(artistId: $artistId);
+        $releases = $this->client->listArtistReleases(
+            artistId: $artistId,
+            perPage: 10
+        );
 
         return [
             'artist' => $artist,
@@ -171,78 +170,51 @@ class MusicService
     public function addToMyCollection(int $releaseId): void
     {
         // Requires Personal Access Token
-        $this->client->addToCollection([
-            'folder_id' => 1, // "Uncategorized" folder
-            'release_id' => $releaseId,
-        ]);
+        $this->client->addToCollection(
+            username: 'your-username', // Replace with actual username
+            folderId: 1, // "Uncategorized" folder
+            releaseId: $releaseId
+        );
     }
 }
 ```
 
-## 🧪 Testing
+## ⚡ Rate Limiting (Optional)
+
+For high-volume applications, use the powerful [symfony/rate-limiter](https://symfony.com/doc/current/rate_limiter.html) component:
 
 ```bash
-# Run unit tests (default, fast)
-composer test
-
-# Integration tests with real API (requires credentials)  
-composer test-integration
-
-# Code analysis & style
-composer analyse
-composer cs-fix
+composer require symfony/rate-limiter
 ```
 
-See [INTEGRATION_TESTS.md](INTEGRATION_TESTS.md) for API test setup.
+### 1. Configure Rate Limiter
 
-## 📖 API Documentation Reference
+```yaml
+# config/packages/rate_limiter.yaml
+rate_limiter:
+    discogs_api:
+        policy: 'sliding_window'
+        limit: 25  # Safe for both anonymous and authenticated access
+        interval: '1 minute'
+```
 
-For complete API documentation including all available parameters, visit the [Discogs API Documentation](https://www.discogs.com/developers/).
+### 2. Configure Bundle
 
-### Popular Methods
+```yaml
+# config/packages/calliostro_discogs.yaml
+calliostro_discogs:
+    personal_access_token: '%env(DISCOGS_PERSONAL_ACCESS_TOKEN)%'
+    rate_limiter: discogs_api
+```
 
-#### Database Methods
+**Choose your rate limit based on your authentication:**
 
-- `search($params)` – Search the Discogs database
-- `getArtist($params)` – Get artist information
-- `listArtistReleases($params)` – Get artist's releases
-- `getRelease($params)` – Get release information
-- `getUserReleaseRating($params)` – Get user's rating for a release (auth required)
-- `getMaster($params)` – Get master release information
-- `getLabel($params)` – Get label information
-
-#### Collection Methods
-
-- `listCollectionFolders($params)` – Get user's collection folders
-- `listCollectionItems($params)` – Get user's collection items  
-- `addToCollection($params)` – Add release to a collection (auth required)
-- `updateCollectionItem($params)` – Update collection item (auth required)
-- `removeFromCollection($params)` – Remove from a collection (auth required)
-- `getCollectionValue($params)` – Get collection value estimation
-
-#### User Methods
-
-- `getUser($params)` – Get user profile information
-- `getIdentity($params)` – Get current user identity (auth required)
-- `listUserSubmissions($params)` – Get user's submissions
-- `listUserContributions($params)` – Get user's contributions
-- `getUserWantlist($params)` – Get user's wantlist
-- `getUserInventory($params)` – Get user's marketplace inventory
+- **Anonymous access:** Use 25/min (as shown above)
+- **Authenticated only:** Change limit to 60 for maximum performance
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Write tests for your changes:
-   - Add unit tests for new functionality
-   - Update integration tests if needed
-   - Ensure all tests pass: `composer test`
-4. Follow code standards: `composer analyse && composer cs-fix`
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-Please ensure your code follows Symfony coding standards and includes tests.
+Contributions are welcome! Please see [DEVELOPMENT.md](DEVELOPMENT.md) for detailed setup instructions, testing guide, and development workflow.
 
 ## 📄 License
 

@@ -160,8 +160,8 @@ jobs:
 
       - name: Run static analysis
         run: |
-          if [[ "${{ matrix.symfony-version }}" == "^7.4" || "${{ matrix.symfony-version }}" == "^8.0" ]]; then
-            composer analyse-generics
+          if [[ "${{ matrix.symfony-version }}" == "^6.4" || "${{ matrix.symfony-version }}" == "^7.0" || "${{ matrix.symfony-version }}" == "^7.1" || "${{ matrix.symfony-version }}" == "^7.2" || "${{ matrix.symfony-version }}" == "^7.3" ]]; then
+            composer analyse-legacy
           else
             composer analyse
           fi

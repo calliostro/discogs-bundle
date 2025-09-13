@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Calliostro\DiscogsBundle\Tests\Unit\DependencyInjection;
 
 use Calliostro\DiscogsBundle\DependencyInjection\Configuration;
@@ -11,12 +13,6 @@ final class ConfigurationValidationTest extends TestCase
 {
     private Configuration $configuration;
     private Processor $processor;
-
-    protected function setUp(): void
-    {
-        $this->configuration = new Configuration();
-        $this->processor = new Processor();
-    }
 
     public function testEmptyPersonalAccessTokenFails(): void
     {
@@ -88,38 +84,6 @@ final class ConfigurationValidationTest extends TestCase
         $this->processor->processConfiguration($this->configuration, $configs);
     }
 
-    public function testNegativeThrottleMicrosecondsFails(): void
-    {
-        $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Throttle microseconds must be a positive integer');
-
-        $configs = [
-            [
-                'throttle' => [
-                    'microseconds' => -1000,
-                ],
-            ],
-        ];
-
-        $this->processor->processConfiguration($this->configuration, $configs);
-    }
-
-    public function testExcessiveThrottleMicrosecondsFails(): void
-    {
-        $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Throttle microseconds cannot exceed 60 seconds');
-
-        $configs = [
-            [
-                'throttle' => [
-                    'microseconds' => 70000000, // 70 seconds
-                ],
-            ],
-        ];
-
-        $this->processor->processConfiguration($this->configuration, $configs);
-    }
-
     public function testTooLongUserAgentFails(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -140,10 +104,6 @@ final class ConfigurationValidationTest extends TestCase
             [
                 'personal_access_token' => 'BillieEilishFan2024Token123456789',
                 'user_agent' => 'MyMusicApp/2.0 +https://example.com',
-                'throttle' => [
-                    'enabled' => true,
-                    'microseconds' => 500000, // 0.5 seconds
-                ],
             ],
         ];
 
@@ -151,53 +111,6 @@ final class ConfigurationValidationTest extends TestCase
 
         $this->assertEquals('BillieEilishFan2024Token123456789', $config['personal_access_token']);
         $this->assertEquals('MyMusicApp/2.0 +https://example.com', $config['user_agent']);
-        $this->assertTrue($config['throttle']['enabled']);
-        $this->assertEquals(500000, $config['throttle']['microseconds']);
-    }
-
-    public function testZeroThrottleMicrosecondsIsValid(): void
-    {
-        $configs = [
-            [
-                'throttle' => [
-                    'microseconds' => 0,
-                ],
-            ],
-        ];
-
-        $config = $this->processor->processConfiguration($this->configuration, $configs);
-
-        $this->assertEquals(0, $config['throttle']['microseconds']);
-    }
-
-    public function testMaximumThrottleMicrosecondsIsValid(): void
-    {
-        $configs = [
-            [
-                'throttle' => [
-                    'microseconds' => 60000000, // Exactly 60 seconds
-                ],
-            ],
-        ];
-
-        $config = $this->processor->processConfiguration($this->configuration, $configs);
-
-        $this->assertEquals(60000000, $config['throttle']['microseconds']);
-    }
-
-    public function testInvalidBooleanThrottleEnabled(): void
-    {
-        $this->expectException(InvalidConfigurationException::class);
-
-        $configs = [
-            [
-                'throttle' => [
-                    'enabled' => 'not_a_boolean',
-                ],
-            ],
-        ];
-
-        $this->processor->processConfiguration($this->configuration, $configs);
     }
 
     public function testArrayAsScalarValue(): void
@@ -211,5 +124,11 @@ final class ConfigurationValidationTest extends TestCase
         ];
 
         $this->processor->processConfiguration($this->configuration, $configs);
+    }
+
+    protected function setUp(): void
+    {
+        $this->configuration = new Configuration();
+        $this->processor = new Processor();
     }
 }

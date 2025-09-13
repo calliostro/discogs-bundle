@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Calliostro\DiscogsBundle;
 
 use Calliostro\DiscogsBundle\DependencyInjection\CalliostroDiscogsExtension;
@@ -19,12 +21,8 @@ final class CalliostroDiscogsBundle extends Bundle
             $this->extension = new CalliostroDiscogsExtension();
         }
 
-        // The parent method can return false, but we guarantee to return an extension
-        $extension = $this->extension;
-        if (!$extension instanceof ExtensionInterface) {
-            throw new \LogicException('Extension must implement ExtensionInterface');
-        }
+        \assert($this->extension instanceof ExtensionInterface);
 
-        return $extension;
+        return $this->extension;
     }
 }

@@ -29,34 +29,6 @@ final class AuthenticatedApiIntegrationTest extends IntegrationTestCase
     private string $oauthToken;
     private string $oauthTokenSecret;
 
-    protected function setUp(): void
-    {
-        $this->consumerKey = getenv('DISCOGS_CONSUMER_KEY') ?: '';
-        $this->consumerSecret = getenv('DISCOGS_CONSUMER_SECRET') ?: '';
-        $this->personalToken = getenv('DISCOGS_PERSONAL_ACCESS_TOKEN') ?: '';
-        $this->oauthToken = getenv('DISCOGS_OAUTH_TOKEN') ?: '';
-        $this->oauthTokenSecret = getenv('DISCOGS_OAUTH_TOKEN_SECRET') ?: '';
-
-        if (empty($this->consumerKey) || empty($this->consumerSecret) || empty($this->personalToken)) {
-            $this->markTestSkipped('Authentication credentials not available');
-        }
-
-        parent::setUp();
-    }
-
-    /**
-     * Helper to skip test if credentials are invalid.
-     */
-    private function skipIfInvalidCredentials(\Exception $e): void
-    {
-        if ($e instanceof \GuzzleHttp\Exception\ClientException
-            && $e->getResponse()
-            && 401 === $e->getResponse()->getStatusCode()) {
-            $this->markTestSkipped('Invalid credentials provided - test requires valid Discogs API credentials');
-        }
-        throw $e;
-    }
-
     /**
      * Level 2: Consumer Credentials - Search enabled through Bundle.
      */
@@ -70,15 +42,14 @@ final class AuthenticatedApiIntegrationTest extends IntegrationTestCase
         $kernel->boot();
         $container = $kernel->getContainer();
         $client = $container->get('calliostro_discogs.discogs_client');
+        \assert($client instanceof \Calliostro\Discogs\DiscogsClient);
 
         // All public endpoints should still work
-        $artist = $client->getArtist(['id' => '1']);
-        $this->assertIsArray($artist);
+        $artist = $client->getArtist(artistId: 1);
         $this->assertArrayHasKey('name', $artist);
 
         // Search should now work with consumer credentials
-        $searchResults = $client->search(['q' => 'Daft Punk', 'type' => 'artist']);
-        $this->assertIsArray($searchResults);
+        $searchResults = $client->search(q: 'Daft Punk', type: 'artist');
         $this->assertArrayHasKey('results', $searchResults);
         $this->assertGreaterThan(0, \count($searchResults['results']));
     }
@@ -95,51 +66,47 @@ final class AuthenticatedApiIntegrationTest extends IntegrationTestCase
         $kernel->boot();
         $container = $kernel->getContainer();
         $client = $container->get('calliostro_discogs.discogs_client');
+        \assert($client instanceof \Calliostro\Discogs\DiscogsClient);
 
         // All previous functionality should work
-        $artist = $client->getArtist(['id' => '1']);
-        $this->assertIsArray($artist);
+        $artist = $client->getArtist(artistId: 1);
+        $this->assertArrayHasKey('name', $artist);
 
-        $searchResults = $client->search(['q' => 'Jazz', 'type' => 'release']);
-        $this->assertIsArray($searchResults);
+        $searchResults = $client->search(q: 'Jazz', type: 'release');
         $this->assertArrayHasKey('results', $searchResults);
 
         // Test that we can successfully make authenticated requests
-        $this->assertIsArray($searchResults);
         $this->assertNotEmpty($searchResults['results']);
     }
 
     /**
-     * Test rate limiting behavior with authenticated requests through Bundle.
+     * Test ultra-lightweight bundle behavior with authenticated requests.
+     * Bundle has no built-in throttling - rate limiting via Symfony component if needed.
      */
-    public function testRateLimitingWithAuthentication(): void
+    public function testUltraLightweightWithAuthentication(): void
     {
         $kernel = $this->createKernel([
             'personal_access_token' => $this->personalToken,
-            'throttle' => [
-                'enabled' => true,
-                'microseconds' => 500000, // 0.5 seconds for authenticated requests
-            ],
         ]);
         $kernel->boot();
         $container = $kernel->getContainer();
         $client = $container->get('calliostro_discogs.discogs_client');
+        \assert($client instanceof \Calliostro\Discogs\DiscogsClient);
 
         // Make several requests in quick succession
-        // Authenticated requests have higher rate limits
+        // No built-in throttling overhead
         $startTime = microtime(true);
 
         for ($i = 0; $i < 3; ++$i) {
-            $artist = $client->getArtist(['id' => (string) (1 + $i)]);
-            $this->assertIsArray($artist);
+            $artist = $client->getArtist(artistId: 1 + $i);
             $this->assertArrayHasKey('name', $artist);
         }
 
         $endTime = microtime(true);
         $duration = $endTime - $startTime;
 
-        // With authentication, this should complete quickly (< 3 seconds)
-        $this->assertLessThan(3.0, $duration, 'Authenticated requests took too long - possible rate limiting issue');
+        // Ultra-lightweight bundle should complete quickly without throttling overhead
+        $this->assertLessThan(3.0, $duration, 'Ultra-lightweight bundle took too long');
     }
 
     /**
@@ -155,7 +122,7 @@ final class AuthenticatedApiIntegrationTest extends IntegrationTestCase
         }
 
         // Create the OAuth client directly via the library (not Bundle config)
-        $client = \Calliostro\Discogs\ClientFactory::createWithOAuth(
+        $client = \Calliostro\Discogs\DiscogsClientFactory::createWithOAuth(
             $this->consumerKey,
             $this->consumerSecret,
             $this->oauthToken,
@@ -165,7 +132,6 @@ final class AuthenticatedApiIntegrationTest extends IntegrationTestCase
         // Test identity endpoint (OAuth-specific functionality)
         try {
             $identity = $client->getIdentity();
-            $this->assertIsArray($identity);
             $this->assertArrayHasKey('username', $identity);
             $this->assertNotEmpty($identity['username']);
         } catch (\Exception $e) {
@@ -174,13 +140,23 @@ final class AuthenticatedApiIntegrationTest extends IntegrationTestCase
 
         // Test search with OAuth (should work like other auth methods)
         try {
-            $searchResults = $client->search(['q' => 'Electronic', 'type' => 'artist', 'per_page' => 5]);
-            $this->assertIsArray($searchResults);
+            $searchResults = $client->search(q: 'Electronic', type: 'artist', perPage: 5);
             $this->assertArrayHasKey('results', $searchResults);
             $this->assertGreaterThan(0, \count($searchResults['results']));
         } catch (\Exception $e) {
             $this->skipIfInvalidCredentials($e);
         }
+    }
+
+    /**
+     * Helper to skip test if credentials are invalid.
+     */
+    private function skipIfInvalidCredentials(\Exception $e): void
+    {
+        if ($e instanceof \GuzzleHttp\Exception\ClientException && 401 === $e->getResponse()->getStatusCode()) {
+            $this->markTestSkipped('Invalid credentials provided - test requires valid Discogs API credentials');
+        }
+        throw $e;
     }
 
     /**
@@ -192,20 +168,32 @@ final class AuthenticatedApiIntegrationTest extends IntegrationTestCase
         $kernel = $this->createKernel([
             'consumer_key' => $this->consumerKey,
             'consumer_secret' => $this->consumerSecret,
-            'throttle' => [
-                'enabled' => true,
-                'microseconds' => 1000000, // 1 second for consumer credential requests
-            ],
         ]);
         $kernel->boot();
         $container = $kernel->getContainer();
         $client = $container->get('calliostro_discogs.discogs_client');
+        \assert($client instanceof \Calliostro\Discogs\DiscogsClient);
 
         try {
-            $client->getArtist(['id' => '999999999']); // Non-existent artist
+            $client->getArtist(artistId: 999999999); // Non-existent artist
             $this->fail('Should have thrown exception for non-existent artist');
         } catch (\Exception $e) {
             $this->assertStringContainsStringIgnoringCase('not found', $e->getMessage());
         }
+    }
+
+    protected function setUp(): void
+    {
+        $this->consumerKey = getenv('DISCOGS_CONSUMER_KEY') ?: '';
+        $this->consumerSecret = getenv('DISCOGS_CONSUMER_SECRET') ?: '';
+        $this->personalToken = getenv('DISCOGS_PERSONAL_ACCESS_TOKEN') ?: '';
+        $this->oauthToken = getenv('DISCOGS_OAUTH_TOKEN') ?: '';
+        $this->oauthTokenSecret = getenv('DISCOGS_OAUTH_TOKEN_SECRET') ?: '';
+
+        if (empty($this->consumerKey) || empty($this->consumerSecret) || empty($this->personalToken)) {
+            $this->markTestSkipped('Authentication credentials not available');
+        }
+
+        parent::setUp();
     }
 }

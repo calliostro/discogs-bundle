@@ -39,6 +39,36 @@ final class TestKernel extends Kernel
     }
 
     /**
+     * Helper method to create a kernel for specific test scenarios.
+     *
+     * @param array<string, mixed> $config
+     */
+    public static function createForIntegration(array $config = []): self
+    {
+        return new self($config, 'integration_test');
+    }
+
+    /**
+     * Helper method to create a kernel for unit test scenarios.
+     *
+     * @param array<string, mixed> $config
+     */
+    public static function createForUnit(array $config = []): self
+    {
+        return new self($config, 'unit_test');
+    }
+
+    /**
+     * Helper method to create a kernel for functional test scenarios.
+     *
+     * @param array<string, mixed> $config
+     */
+    public static function createForFunctional(array $config = []): self
+    {
+        return new self($config, 'functional_test');
+    }
+
+    /**
      * @return array<int, mixed>
      */
     public function registerBundles(): array
@@ -66,41 +96,9 @@ final class TestKernel extends Kernel
         });
     }
 
-    public function getCacheDir(): string
-    {
-        return $this->getProjectDir().'/var/cache/'.
-            $this->environment.'/'.
-            md5(serialize($this->calliostroDiscogsConfig)).'/'.
-            spl_object_hash($this);
-    }
-
     public function getLogDir(): string
     {
         return $this->getProjectDir().'/var/log/'.$this->environment;
-    }
-
-    /**
-     * Helper method to create a kernel for specific test scenarios.
-     */
-    public static function createForIntegration(array $config = []): self
-    {
-        return new self($config, 'integration_test');
-    }
-
-    /**
-     * Helper method to create a kernel for unit test scenarios.
-     */
-    public static function createForUnit(array $config = []): self
-    {
-        return new self($config, 'unit_test');
-    }
-
-    /**
-     * Helper method to create a kernel for functional test scenarios.
-     */
-    public static function createForFunctional(array $config = []): self
-    {
-        return new self($config, 'functional_test');
     }
 
     /**
@@ -112,6 +110,14 @@ final class TestKernel extends Kernel
         if (is_dir($cacheDir)) {
             $this->removeDirectory($cacheDir);
         }
+    }
+
+    public function getCacheDir(): string
+    {
+        return $this->getProjectDir().'/var/cache/'.
+            $this->environment.'/'.
+            md5(serialize($this->calliostroDiscogsConfig)).'/'.
+            spl_object_hash($this);
     }
 
     /**

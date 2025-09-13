@@ -1,43 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Calliostro\DiscogsBundle\Tests\Unit;
 
 use Calliostro\DiscogsBundle\DependencyInjection\CalliostroDiscogsExtension;
 use Calliostro\DiscogsBundle\Tests\Fixtures\TestKernel;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * Tests for edge cases and proper error handling in bundle configuration.
- */
-final class BundleEdgeCasesTest extends TestCase
+final class BundleEdgeCasesTest extends UnitTestCase
 {
     public function testExtensionHandlesEmptyConfig(): void
     {
-        $container = new ContainerBuilder();
+        $container = $this->createContainerBuilder();
         $extension = new CalliostroDiscogsExtension();
 
         // Empty config should work with defaults
         $extension->load([], $container);
 
-        $this->assertTrue($container->hasDefinition('calliostro_discogs.discogs_client'));
+        $this->assertDefinitionExists($container, 'calliostro_discogs.discogs_client');
     }
 
     public function testExtensionHandlesNestedEmptyArrays(): void
     {
-        $container = new ContainerBuilder();
+        $container = $this->createContainerBuilder();
         $extension = new CalliostroDiscogsExtension();
 
-        $config = [
-            [
-                'throttle' => [],
-            ],
-        ];
+        $config = [[]];
 
         $extension->load($config, $container);
 
-        $this->assertTrue($container->hasDefinition('calliostro_discogs.discogs_client'));
-        $this->assertTrue($container->hasDefinition('calliostro_discogs.throttle_handler_stack'));
+        $this->assertDefinitionExists($container, 'calliostro_discogs.discogs_client');
     }
 
     public function testKernelHandlesCacheDirectoryCreation(): void
@@ -74,14 +67,13 @@ final class BundleEdgeCasesTest extends TestCase
         $kernel->cleanupCache();
     }
 
-    public function testBundleWithValidThrottleMicroseconds(): void
+    public function testBundleWithMixedConfiguration(): void
     {
-        // Test with valid positive microseconds value
+        // Test with multiple configuration options
         $config = [
-            'throttle' => [
-                'enabled' => true,
-                'microseconds' => 500000, // 0.5 seconds - valid
-            ],
+            'user_agent' => 'MixedConfig/1.0',
+            'consumer_key' => 'test_key_12345678901234567890',
+            'consumer_secret' => 'test_secret_12345678901234567890',
         ];
 
         $kernel = TestKernel::createForFunctional($config);
@@ -89,33 +81,14 @@ final class BundleEdgeCasesTest extends TestCase
         $container = $kernel->getContainer();
 
         $client = $container->get('calliostro_discogs.discogs_client');
-        $this->assertNotNull($client);
-
-        $kernel->cleanupCache();
-    }
-
-    public function testBundleWithZeroMicroseconds(): void
-    {
-        $config = [
-            'throttle' => [
-                'enabled' => true,
-                'microseconds' => 0,
-            ],
-        ];
-
-        $kernel = TestKernel::createForFunctional($config);
-        $kernel->boot();
-        $container = $kernel->getContainer();
-
-        $client = $container->get('calliostro_discogs.discogs_client');
-        $this->assertNotNull($client);
+        $this->assertInstanceOf(\Calliostro\Discogs\DiscogsClient::class, $client);
 
         $kernel->cleanupCache();
     }
 
     public function testBundleWithValidLongUserAgent(): void
     {
-        // Use a valid user agent within the 200 character limit (exactly 200 chars)
+        // Use a valid user agent within the 200-character limit (exactly 200 chars)
         $longUserAgent = str_repeat('A', 170).'/1.0+https://example.com'; // 170 + 30 = 200 chars
 
         $config = [
@@ -127,7 +100,7 @@ final class BundleEdgeCasesTest extends TestCase
         $container = $kernel->getContainer();
 
         $client = $container->get('calliostro_discogs.discogs_client');
-        $this->assertNotNull($client);
+        $this->assertInstanceOf(\Calliostro\Discogs\DiscogsClient::class, $client);
 
         $kernel->cleanupCache();
     }
@@ -145,7 +118,7 @@ final class BundleEdgeCasesTest extends TestCase
         $container = $kernel->getContainer();
 
         $client = $container->get('calliostro_discogs.discogs_client');
-        $this->assertNotNull($client);
+        $this->assertInstanceOf(\Calliostro\Discogs\DiscogsClient::class, $client);
 
         $kernel->cleanupCache();
     }
@@ -163,7 +136,7 @@ final class BundleEdgeCasesTest extends TestCase
         $container = $kernel->getContainer();
 
         $client = $container->get('calliostro_discogs.discogs_client');
-        $this->assertNotNull($client);
+        $this->assertInstanceOf(\Calliostro\Discogs\DiscogsClient::class, $client);
 
         $kernel->cleanupCache();
     }
@@ -182,7 +155,7 @@ final class BundleEdgeCasesTest extends TestCase
         // Third cleanup should not fail
         $kernel->cleanupCache();
 
-        $this->assertTrue(true); // If we get here, no exceptions were thrown
+        $this->addToAssertionCount(1); // If we get here, no exceptions were thrown
     }
 
     public function testKernelWithNonExistentCacheDirectoryParent(): void
@@ -211,7 +184,7 @@ final class BundleEdgeCasesTest extends TestCase
 
         // Should work with minimal valid config
         $client = $container->get('calliostro_discogs.discogs_client');
-        $this->assertNotNull($client);
+        $this->assertInstanceOf(\Calliostro\Discogs\DiscogsClient::class, $client);
 
         $kernel->cleanupCache();
     }
@@ -229,7 +202,7 @@ final class BundleEdgeCasesTest extends TestCase
         $extension = new CalliostroDiscogsExtension();
         $config = $extension->getConfiguration([], new ContainerBuilder());
 
-        $this->assertNotNull($config);
+        $this->assertInstanceOf(\Calliostro\DiscogsBundle\DependencyInjection\Configuration::class, $config);
 
         $treeBuilder = $config->getConfigTreeBuilder();
         $tree = $treeBuilder->buildTree();
