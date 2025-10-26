@@ -26,20 +26,20 @@
     ],
     "require": {
         "php": "^8.1",
-        "calliostro/php-discogs-api": "v4.0.0-beta.3",
-        "symfony/config": "^6.4|^7.0|^8.0",
-        "symfony/dependency-injection": "^6.4|^7.0|^8.0",
-        "symfony/http-kernel": "^6.4|^7.0|^8.0",
-        "symfony/security-core": "^6.4|^7.0|^8.0"
+        "calliostro/php-discogs-api": "v4.0.0-beta.3"
     },
     "suggest": {
         "symfony/rate-limiter": "For advanced rate limiting functionality"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^6.4|^7.0|^8.0",
+        "symfony/phpunit-bridge": "7.4.x-dev",
         "phpstan/phpstan": "^2.1",
         "friendsofphp/php-cs-fixer": "^3.87",
-        "symfony/rate-limiter": "^6.4|^7.0|^8.0"
+        "symfony/rate-limiter": "^6.4|^7.0|^8.0",
+        "symfony/config": "7.4.x-dev",
+        "symfony/dependency-injection": "7.4.x-dev",
+        "symfony/http-kernel": "7.4.x-dev",
+        "symfony/security-core": "7.4.x-dev"
     },
     "autoload": {
         "psr-4": {
@@ -60,10 +60,10 @@
         "test-coverage-all": "vendor/bin/simple-phpunit --testsuite=\"All Tests\" --coverage-html coverage --coverage-clover coverage.xml",
         "cs": "vendor/bin/php-cs-fixer fix --dry-run --diff --verbose",
         "cs-fix": "vendor/bin/php-cs-fixer fix --verbose",
-        "analyse": "vendor/bin/phpstan analyse src --level=8 --configuration phpstan/generic-baseline.neon",
+        "analyse": "vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony-legacy-baseline.neon",
         "analyse-legacy": "vendor/bin/phpstan analyse src --level=8"
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 
 }

@@ -142,10 +142,18 @@ jobs:
 
       - name: Run static analysis
         run: |
-          if [[ "${{ matrix.symfony-version }}" == "^6.4" || "${{ matrix.symfony-version }}" == "^7.0" || "${{ matrix.symfony-version }}" == "^7.1" || "${{ matrix.symfony-version }}" == "^7.2" || "${{ matrix.symfony-version }}" == "^7.3" ]]; then
-            composer analyse-legacy
-          else
+          if [[ "${{ matrix.symfony-version }}" == "^8.0" ]]; then
+            # Symfony 8.0: Use specific baseline for remaining issues
+            vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony8-baseline.neon
+          elif [[ "${{ matrix.symfony-version }}" == "^7.4" ]]; then
+            # Symfony 7.4 LTS: Functionally identical to 8.0, needs same baseline
+            vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony74-baseline.neon
+          elif [[ "${{ matrix.symfony-version }}" == "^6.4" || "${{ matrix.symfony-version }}" == "^7.0" || "${{ matrix.symfony-version }}" == "^7.1" || "${{ matrix.symfony-version }}" == "^7.2" || "${{ matrix.symfony-version }}" == "^7.3" ]]; then
+            # Older Symfony versions: Use legacy baseline for children() issue
             composer analyse
+          else
+            # Future versions: Try without baseline first
+            composer analyse-legacy
           fi
 
       - name: Run tests

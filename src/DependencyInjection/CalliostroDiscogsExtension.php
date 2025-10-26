@@ -7,7 +7,7 @@ namespace Calliostro\DiscogsBundle\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
 final class CalliostroDiscogsExtension extends Extension
@@ -25,10 +25,8 @@ final class CalliostroDiscogsExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.xml');
-
-        // Configure client based on authentication method
+        // Load services configuration
+        $this->loadServices($container);        // Configure client based on authentication method
         $this->configureClient($container, $config);
     }
 
@@ -113,6 +111,17 @@ final class CalliostroDiscogsExtension extends Extension
         ]);
 
         $options['handler'] = new Reference('calliostro_discogs.rate_limiter_handler_stack');
+    }
+
+    /**
+     * Load service configuration files.
+     * Uses PHP configuration for all Symfony versions (4.2+) for consistency and future-proofing.
+     */
+    private function loadServices(ContainerBuilder $container): void
+    {
+        $fileLocator = new FileLocator(__DIR__.'/../Resources/config');
+        $loader = new PhpFileLoader($container, $fileLocator);
+        $loader->load('services.php');
     }
 
     /**

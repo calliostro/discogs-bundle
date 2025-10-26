@@ -14,7 +14,6 @@ final class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('calliostro_discogs');
         $rootNode = $treeBuilder->getRootNode();
 
-        // @phpstan-ignore-next-line: Symfony Config Builder has dynamic method resolution
         $rootNode
             ->children()
             ->scalarNode('personal_access_token')
