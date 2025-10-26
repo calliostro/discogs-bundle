@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.0.0-beta.2](https://github.com/calliostro/discogs-bundle/releases/tag/v4.0.0-beta.2) – 2025-09-14
+## [4.0.0-beta.3](https://github.com/calliostro/discogs-bundle/releases/tag/v4.0.0-beta.3) – 2025-10-26
 
 ### 🚀 Complete Rewrite — Fresh Start
 
@@ -37,7 +37,7 @@ This version represents a complete architectural rewrite. v4.0.0 is essentially 
 - **Service Naming** follows modern Symfony conventions with proper aliases
 - **Error Handling** improved with better exceptions and validation
 - **Performance** optimized for modern PHP versions
-- **Complete API Integration** now based on `calliostro/php-discogs-api` v4.0.0-beta.2
+- **Complete API Integration** now based on `calliostro/php-discogs-api` v4.0.0-beta.3
 - **Code Standards** fully compliant with @Symfony and @Symfony:risky rules
 
 ### Removed
