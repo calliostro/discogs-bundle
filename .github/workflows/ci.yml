@@ -5,7 +5,7 @@ on:
     branches:
       - 'main'
       - 'legacy/*'      # Legacy branches: legacy/v3.x
-      - 'feature/*'     # Feature branches: feature/new-feature  
+      - 'feature/*'     # Feature branches: feature/new-feature
       - 'hotfix/*'      # Hotfix branches: hotfix/urgent-fix
       - 'release/*'     # Release branches: release/v4.0.0
   pull_request:
@@ -32,7 +32,7 @@ jobs:
           - php: '8.4'
             symfony-version: '^6.4'
             allowed-to-fail: false
-            
+
           # Symfony 7.x current versions
           - php: '8.2'
             symfony-version: '^7.0'
@@ -158,6 +158,10 @@ jobs:
 
       - name: Run tests
         run: ./vendor/bin/simple-phpunit -v
+        env:
+            DISCOGS_CONSUMER_KEY: ${{ secrets.DISCOGS_CONSUMER_KEY }}
+            DISCOGS_CONSUMER_SECRET: ${{ secrets.DISCOGS_CONSUMER_SECRET }}
+            DISCOGS_PERSONAL_ACCESS_TOKEN: ${{ secrets.DISCOGS_PERSONAL_ACCESS_TOKEN }}
 
   code-quality:
     runs-on: ubuntu-latest
@@ -229,6 +233,10 @@ jobs:
 
       - name: Run tests with coverage
         run: ./vendor/bin/simple-phpunit --coverage-clover coverage.xml
+        env:
+            DISCOGS_CONSUMER_KEY: ${{ secrets.DISCOGS_CONSUMER_KEY }}
+            DISCOGS_CONSUMER_SECRET: ${{ secrets.DISCOGS_CONSUMER_SECRET }}
+            DISCOGS_PERSONAL_ACCESS_TOKEN: ${{ secrets.DISCOGS_PERSONAL_ACCESS_TOKEN }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
