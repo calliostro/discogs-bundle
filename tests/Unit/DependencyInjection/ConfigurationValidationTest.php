@@ -14,74 +14,69 @@ final class ConfigurationValidationTest extends TestCase
     private Configuration $configuration;
     private Processor $processor;
 
-    public function testEmptyPersonalAccessTokenFails(): void
+    public function testEmptyPersonalAccessTokenNowAllowed(): void
     {
-        $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Personal access token cannot be empty');
-
+        // This should now pass (no longer fails at compile time)
         $configs = [
             [
                 'personal_access_token' => '',
             ],
         ];
 
-        $this->processor->processConfiguration($this->configuration, $configs);
+        $config = $this->processor->processConfiguration($this->configuration, $configs);
+        $this->assertEquals('', $config['personal_access_token']);
     }
 
-    public function testWhitespaceOnlyPersonalAccessTokenFails(): void
+    public function testWhitespaceOnlyPersonalAccessTokenNowAllowed(): void
     {
-        $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Personal access token cannot be empty');
-
+        // This should now pass (no longer fails at compile time)
         $configs = [
             [
                 'personal_access_token' => '   ',
             ],
         ];
 
-        $this->processor->processConfiguration($this->configuration, $configs);
+        $config = $this->processor->processConfiguration($this->configuration, $configs);
+        $this->assertEquals('   ', $config['personal_access_token']);
     }
 
-    public function testShortPersonalAccessTokenFails(): void
+    public function testShortPersonalAccessTokenNowAllowed(): void
     {
-        $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Personal access token must be at least 10 characters');
-
+        // This should now pass (validation moved to runtime)
         $configs = [
             [
                 'personal_access_token' => 'short',
             ],
         ];
 
-        $this->processor->processConfiguration($this->configuration, $configs);
+        $config = $this->processor->processConfiguration($this->configuration, $configs);
+        $this->assertEquals('short', $config['personal_access_token']);
     }
 
-    public function testEmptyConsumerKeyFails(): void
+    public function testEmptyConsumerKeyNowAllowed(): void
     {
-        $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Consumer key cannot be empty');
-
+        // This should now pass (no longer fails at compile time)
         $configs = [
             [
                 'consumer_key' => '',
             ],
         ];
 
-        $this->processor->processConfiguration($this->configuration, $configs);
+        $config = $this->processor->processConfiguration($this->configuration, $configs);
+        $this->assertEquals('', $config['consumer_key']);
     }
 
-    public function testEmptyConsumerSecretFails(): void
+    public function testEmptyConsumerSecretNowAllowed(): void
     {
-        $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Consumer secret cannot be empty');
-
+        // This should now pass (no longer fails at compile time)
         $configs = [
             [
                 'consumer_secret' => '',
             ],
         ];
 
-        $this->processor->processConfiguration($this->configuration, $configs);
+        $config = $this->processor->processConfiguration($this->configuration, $configs);
+        $this->assertEquals('', $config['consumer_secret']);
     }
 
     public function testTooLongUserAgentFails(): void
@@ -111,6 +106,23 @@ final class ConfigurationValidationTest extends TestCase
 
         $this->assertEquals('BillieEilishFan2024Token123456789', $config['personal_access_token']);
         $this->assertEquals('MyMusicApp/2.0 +https://example.com', $config['user_agent']);
+    }
+
+    public function testEnvironmentVariableSyntaxAllowed(): void
+    {
+        // Test that environment variable syntax is now allowed
+        $configs = [
+            [
+                'personal_access_token' => '%env(DISCOGS_PERSONAL_ACCESS_TOKEN)%',
+                'consumer_key' => '%env(DISCOGS_CONSUMER_KEY)%',
+                'consumer_secret' => '%env(DISCOGS_CONSUMER_SECRET)%',
+            ],
+        ];
+
+        $config = $this->processor->processConfiguration($this->configuration, $configs);
+        $this->assertEquals('%env(DISCOGS_PERSONAL_ACCESS_TOKEN)%', $config['personal_access_token']);
+        $this->assertEquals('%env(DISCOGS_CONSUMER_KEY)%', $config['consumer_key']);
+        $this->assertEquals('%env(DISCOGS_CONSUMER_SECRET)%', $config['consumer_secret']);
     }
 
     public function testArrayAsScalarValue(): void

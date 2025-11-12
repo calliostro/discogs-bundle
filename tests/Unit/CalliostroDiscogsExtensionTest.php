@@ -93,11 +93,15 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
 
         $extension->load($config, $container);
 
-        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
-            ['Calliostro\Discogs\DiscogsClientFactory', 'createWithConsumerCredentials']);
-        $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 3);
-        $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 0, 'test_key');
-        $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 1, 'test_secret');
+        // Our new architecture always uses the same factory method
+        $this->assertTrue($container->hasDefinition('calliostro_discogs.client_factory'));
+        $definition = $container->getDefinition('calliostro_discogs.discogs_client');
+        $factory = $definition->getFactory();
+        $this->assertEquals('createClient', $factory[1]);
+        $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 4);
+        // Check that consumer credentials are at the correct positions
+        $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 1, 'test_key');
+        $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 2, 'test_secret');
     }
 
     public function testLoadWithoutRateLimiter(): void
@@ -109,9 +113,11 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
 
         $extension->load($config, $container);
 
-        // When no rate limiter is configured, the basic client factory should be used
-        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
-            ['Calliostro\Discogs\DiscogsClientFactory', 'create']);
+        // Our new architecture always uses the same factory method
+        $this->assertTrue($container->hasDefinition('calliostro_discogs.client_factory'));
+        $definition = $container->getDefinition('calliostro_discogs.discogs_client');
+        $factory = $definition->getFactory();
+        $this->assertEquals('createClient', $factory[1]);
     }
 
     public function testLoadWithPersonalAccessToken(): void
@@ -127,9 +133,12 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
 
         $extension->load($config, $container);
 
-        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
-            ['Calliostro\Discogs\DiscogsClientFactory', 'createWithPersonalAccessToken']);
-        $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 2);
+        // Our new architecture always uses the same factory method
+        $this->assertTrue($container->hasDefinition('calliostro_discogs.client_factory'));
+        $definition = $container->getDefinition('calliostro_discogs.discogs_client');
+        $factory = $definition->getFactory();
+        $this->assertEquals('createClient', $factory[1]);
+        $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 4);
         $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 0, 'test_token_123');
     }
 
@@ -146,14 +155,16 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
 
         $extension->load($config, $container);
 
-        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
-            ['Calliostro\Discogs\DiscogsClientFactory', 'create']);
-
+        // Our new architecture always uses the same factory method
+        $this->assertTrue($container->hasDefinition('calliostro_discogs.client_factory'));
         $definition = $container->getDefinition('calliostro_discogs.discogs_client');
+        $factory = $definition->getFactory();
+        $this->assertEquals('createClient', $factory[1]);
         $arguments = $definition->getArguments();
-        $this->assertIsArray($arguments[0]);
-        $this->assertArrayHasKey('headers', $arguments[0]);
-        $this->assertEquals('CustomAgent/1.0', $arguments[0]['headers']['User-Agent']);
+        $options = $arguments[3]; // Options are at index 3
+        $this->assertIsArray($options);
+        $this->assertArrayHasKey('headers', $options);
+        $this->assertEquals('CustomAgent/1.0', $options['headers']['User-Agent']);
     }
 
     public function testLoadWithPersonalAccessTokenAndUserAgent(): void
@@ -170,14 +181,14 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
 
         $extension->load($config, $container);
 
-        $this->assertDefinitionHasFactory($container, 'calliostro_discogs.discogs_client',
-            ['Calliostro\Discogs\DiscogsClientFactory', 'createWithPersonalAccessToken']);
-        $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 2);
+        // Verify our new factory approach
+        $this->assertTrue($container->hasDefinition('calliostro_discogs.client_factory'));
+        $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 4);
         $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 0, 'test_token_123');
 
         $definition = $container->getDefinition('calliostro_discogs.discogs_client');
         $arguments = $definition->getArguments();
-        $options = $arguments[1];
+        $options = $arguments[3]; // Options are now at index 3
         $this->assertArrayHasKey('headers', $options);
         $this->assertEquals('TestApp/1.0', $options['headers']['User-Agent']);
     }
@@ -206,7 +217,7 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
 
         $definition = $container->getDefinition('calliostro_discogs.discogs_client');
         $arguments = $definition->getArguments();
-        $options = $arguments[1] ?? []; // Second argument for personal access token factory
+        $options = $arguments[3] ?? []; // Fourth argument is now the options array
 
         // Should have handler option pointing to rate limiter stack
         $this->assertArrayHasKey('handler', $options);

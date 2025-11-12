@@ -37,28 +37,17 @@ final class CalliostroDiscogsExtension extends Extension
     {
         $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
 
-        if (!empty($config['personal_access_token'])) {
-            // Personal Access Token authentication (recommended for personal use)
-            $clientDefinition->setFactory(['Calliostro\\Discogs\\DiscogsClientFactory', 'createWithPersonalAccessToken']);
-            $clientDefinition->setArguments([
-                $config['personal_access_token'],
-                $this->getClientOptions($container, $config),
-            ]);
-        } elseif (!empty($config['consumer_key']) && !empty($config['consumer_secret'])) {
-            // Consumer credentials authentication
-            $clientDefinition->setFactory(['Calliostro\\Discogs\\DiscogsClientFactory', 'createWithConsumerCredentials']);
-            $clientDefinition->setArguments([
-                $config['consumer_key'],
-                $config['consumer_secret'],
-                $this->getClientOptions($container, $config),
-            ]);
-        } else {
-            // Anonymous client (rate-limited)
-            $clientDefinition->setFactory(['Calliostro\\Discogs\\DiscogsClientFactory', 'create']);
-            $clientDefinition->setArguments([
-                $this->getClientOptions($container, $config),
-            ]);
-        }
+        // Create a factory service that will handle validation at runtime
+        $factoryDefinition = $container->register('calliostro_discogs.client_factory', 'Calliostro\\DiscogsBundle\\DependencyInjection\\DiscogsClientFactory');
+
+        // Set the client to use our custom factory
+        $clientDefinition->setFactory([new Reference('calliostro_discogs.client_factory'), 'createClient']);
+        $clientDefinition->setArguments([
+            $config['personal_access_token'] ?? null,
+            $config['consumer_key'] ?? null,
+            $config['consumer_secret'] ?? null,
+            $this->getClientOptions($container, $config),
+        ]);
     }
 
     /**
