@@ -80,12 +80,12 @@ final class DiscogsClientFactory
         return "\n\nTo configure Discogs API credentials:\n".
                "1. Personal Access Token (recommended):\n".
                "   - Get your token from: https://www.discogs.com/settings/developers\n".
-               "   - Add to your .env.local: DISCOGS_PERSONAL_ACCESS_TOKEN=your_token_here\n".
+               "   - Set environment variable: DISCOGS_PERSONAL_ACCESS_TOKEN=your_token_here\n".
                "   - Configure in config/packages/calliostro_discogs.yaml:\n".
                "     calliostro_discogs:\n".
                "       personal_access_token: '%env(DISCOGS_PERSONAL_ACCESS_TOKEN)%'\n\n".
                "2. OAuth Consumer Credentials (for applications):\n".
-               "   - Add to your .env.local:\n".
+               "   - Set environment variables:\n".
                "     DISCOGS_CONSUMER_KEY=your_key_here\n".
                "     DISCOGS_CONSUMER_SECRET=your_secret_here\n".
                "   - Configure in config/packages/calliostro_discogs.yaml:\n".
