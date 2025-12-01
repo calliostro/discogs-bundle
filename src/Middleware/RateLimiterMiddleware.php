@@ -28,10 +28,10 @@ final class RateLimiterMiddleware
         return function (RequestInterface $request, array $options) use ($handler): PromiseInterface {
             $rateLimiter = $this->rateLimiterFactory->create($this->limiterKey);
 
-            // Try to consume from rate limiter
+            // Try to consume from rate limiter with retry
             $limit = $rateLimiter->consume(1);
 
-            if (!$limit->isAccepted()) {
+            while (!$limit->isAccepted()) {
                 // If rate limit exceeded, wait for the retry after time
                 $retryAfter = $limit->getRetryAfter();
                 $waitTime = $retryAfter->getTimestamp() - time();
