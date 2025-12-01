@@ -144,11 +144,11 @@ jobs:
             # Symfony 7.4 LTS: Functionally identical to 8.0, needs same baseline
             vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony74-baseline.neon
           elif [[ "${{ matrix.symfony-version }}" == "^6.4" ]]; then
-            # Symfony 6.4 LTS: Use dedicated baseline for children() issue
-            vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony64-baseline.neon
-          elif [[ "${{ matrix.symfony-version }}" == "^7.0" || "${{ matrix.symfony-version }}" == "^7.1" || "${{ matrix.symfony-version }}" == "^7.2" || "${{ matrix.symfony-version }}" == "^7.3" ]]; then
-            # Symfony 7.0-7.3: Use legacy baseline for children() issue
+            # Symfony 6.4 LTS: Use legacy baseline for children() issue
             composer analyse-legacy
+          elif [[ "${{ matrix.symfony-version }}" == "^7.0" || "${{ matrix.symfony-version }}" == "^7.1" || "${{ matrix.symfony-version }}" == "^7.2" || "${{ matrix.symfony-version }}" == "^7.3" ]]; then
+            # Symfony 7.0-7.3: Use symfony8 baseline for missingType.generics issue
+            composer analyse
           else
             # Future versions: Try without baseline first
             composer analyse
