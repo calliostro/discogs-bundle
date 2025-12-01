@@ -145,10 +145,10 @@ jobs:
             vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony74-baseline.neon
           elif [[ "${{ matrix.symfony-version }}" == "^6.4" || "${{ matrix.symfony-version }}" == "^7.0" || "${{ matrix.symfony-version }}" == "^7.1" || "${{ matrix.symfony-version }}" == "^7.2" || "${{ matrix.symfony-version }}" == "^7.3" ]]; then
             # Older Symfony versions: Use legacy baseline for children() issue
-            composer analyse
+            composer analyse-legacy
           else
             # Future versions: Try without baseline first
-            composer analyse-legacy
+            composer analyse
           fi
 
       - name: Run tests
