@@ -152,7 +152,7 @@ jobs:
           fi
 
       - name: Run tests
-        run: ./vendor/bin/simple-phpunit -v
+        run: composer test
         env:
             DISCOGS_CONSUMER_KEY: ${{ secrets.DISCOGS_CONSUMER_KEY }}
             DISCOGS_CONSUMER_SECRET: ${{ secrets.DISCOGS_CONSUMER_SECRET }}
@@ -227,7 +227,7 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Run tests with coverage
-        run: ./vendor/bin/simple-phpunit --coverage-clover coverage.xml
+        run: composer test-coverage
         env:
             DISCOGS_CONSUMER_KEY: ${{ secrets.DISCOGS_CONSUMER_KEY }}
             DISCOGS_CONSUMER_SECRET: ${{ secrets.DISCOGS_CONSUMER_SECRET }}
