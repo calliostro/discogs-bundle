@@ -23,10 +23,10 @@ composer test-coverage
 ### Static Analysis & Code Quality
 
 ```bash
-# Static analysis (PHPStan Level 8) - For Symfony 7.4+ / 8.0
+# Static analysis (PHPStan Level 8) - Default for Symfony 7.4 / 8.0
 composer analyse
 
-# Static analysis for Symfony 6.4 / 7.0-7.3
+# Static analysis with legacy baseline (required for Symfony 6.4 - 7.3)
 composer analyse-legacy
 
 # Code style check (Symfony standards)

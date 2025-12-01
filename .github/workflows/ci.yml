@@ -35,28 +35,28 @@ jobs:
 
           # Symfony 7.x current versions
           - php: '8.2'
-            symfony-version: '^7.0'
+            symfony-version: '7.0.*'
             allowed-to-fail: false
           - php: '8.3'
-            symfony-version: '^7.0'
+            symfony-version: '7.0.*'
             allowed-to-fail: false
           - php: '8.4'
-            symfony-version: '^7.0'
+            symfony-version: '7.0.*'
             allowed-to-fail: false
           - php: '8.3'
-            symfony-version: '^7.1'
+            symfony-version: '7.1.*'
             allowed-to-fail: false
           - php: '8.4'
-            symfony-version: '^7.1'
+            symfony-version: '7.1.*'
             allowed-to-fail: false
           - php: '8.4'
-            symfony-version: '^7.2'
+            symfony-version: '7.2.*'
             allowed-to-fail: false
           - php: '8.4'
-            symfony-version: '^7.3'
+            symfony-version: '7.3.*'
             allowed-to-fail: false
           - php: '8.4'
-            symfony-version: '^7.4'
+            symfony-version: '7.4.*'
             allowed-to-fail: false
 
           # Symfony 8.0 - Requires PHP 8.4+
@@ -66,13 +66,13 @@ jobs:
 
           # PHP 8.5 with various Symfony versions
           - php: '8.5'
-            symfony-version: '^7.3'
+            symfony-version: '7.3.*'
             allowed-to-fail: false
           - php: '8.5'
-            symfony-version: '^7.4'
+            symfony-version: '7.4.*'
             allowed-to-fail: false
           - php: '8.5'
-            symfony-version: '^8.0'
+            symfony-version: '8.0.*'
             allowed-to-fail: false
 
     name: "PHP ${{ matrix.php }}${{ matrix.symfony-version && format(' | Symfony {0}', matrix.symfony-version) || '' }}${{ matrix.stability && format(' | {0}', matrix.stability) || '' }}"
@@ -137,18 +137,15 @@ jobs:
 
       - name: Run static analysis
         run: |
-          if [[ "${{ matrix.symfony-version }}" == "^8.0" ]]; then
+          if [[ "${{ matrix.symfony-version }}" == "8.0.*" ]]; then
             # Symfony 8.0: Use specific baseline for remaining issues
             vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony8-baseline.neon
-          elif [[ "${{ matrix.symfony-version }}" == "^7.4" ]]; then
+          elif [[ "${{ matrix.symfony-version }}" == "7.4.*" ]]; then
             # Symfony 7.4 LTS: Functionally identical to 8.0, needs same baseline
             vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony74-baseline.neon
-          elif [[ "${{ matrix.symfony-version }}" == "^6.4" ]]; then
-            # Symfony 6.4 LTS: Use legacy baseline for children() issue
+          elif [[ "${{ matrix.symfony-version }}" == "^6.4" || "${{ matrix.symfony-version }}" == "7.0.*" || "${{ matrix.symfony-version }}" == "7.1.*" || "${{ matrix.symfony-version }}" == "7.2.*" || "${{ matrix.symfony-version }}" == "7.3.*" ]]; then
+            # Older Symfony versions 6.4-7.3: Use legacy baseline for children() issue
             composer analyse-legacy
-          elif [[ "${{ matrix.symfony-version }}" == "^7.0" || "${{ matrix.symfony-version }}" == "^7.1" || "${{ matrix.symfony-version }}" == "^7.2" || "${{ matrix.symfony-version }}" == "^7.3" ]]; then
-            # Symfony 7.0-7.3: Use symfony8 baseline for missingType.generics issue
-            composer analyse
           else
             # Future versions: Try without baseline first
             composer analyse
