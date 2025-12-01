@@ -38,7 +38,7 @@
 
 - **PHP**: 8.1+
 - **Symfony**: 6.4+ | 7.x | 8.x
-- **calliostro/php-discogs-api**: v4.0.0-beta.1+
+- **calliostro/php-discogs-api**: ^4.0
 
 ## 📦 Fresh Installation
 
