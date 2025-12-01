@@ -113,7 +113,6 @@ $label = $client->getLabel(labelId: 12677);                  // Interscope Recor
 - **Direct API Calls** – `$client->getArtist(id: 123)` maps to `/artists/{id}`, no abstractions
 - **Type Safe + IDE Support** – Full PHP 8.1+ types, PHPStan Level 8, method autocomplete  
 - **Symfony Native** – Seamless autowiring with Symfony 6.4, 7.x & 8.x
-- **Future-Ready** – PHP 8.5 and Symfony 8.0 compatible (beta/dev testing)
 - **Well Tested** – Comprehensive test coverage, Symfony coding standards
 - **Multiple Auth Methods** – Personal Access Token, OAuth 1.0a, Consumer Credentials, Anonymous
 

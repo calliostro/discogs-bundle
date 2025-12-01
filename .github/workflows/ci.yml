@@ -57,28 +57,23 @@ jobs:
             allowed-to-fail: false
           - php: '8.4'
             symfony-version: '^7.4'
-            stability: 'dev'
-            allowed-to-fail: true
+            allowed-to-fail: false
 
-          # Future-ready: Symfony 8.0 (beta/dev) - Requires PHP 8.4+
+          # Symfony 8.0 - Requires PHP 8.4+
           - php: '8.4'
             symfony-version: '^8.0'
-            stability: 'dev'
-            allowed-to-fail: true
+            allowed-to-fail: false
 
-          # Future-ready: PHP 8.5 (alpha/dev) - when available
+          # PHP 8.5 with various Symfony versions
           - php: '8.5'
             symfony-version: '^7.3'
-            stability: 'dev'
-            allowed-to-fail: true
+            allowed-to-fail: false
           - php: '8.5'
             symfony-version: '^7.4'
-            stability: 'dev'
-            allowed-to-fail: true
+            allowed-to-fail: false
           - php: '8.5'
             symfony-version: '^8.0'
-            stability: 'dev'
-            allowed-to-fail: true
+            allowed-to-fail: false
 
     name: "PHP ${{ matrix.php }}${{ matrix.symfony-version && format(' | Symfony {0}', matrix.symfony-version) || '' }}${{ matrix.stability && format(' | {0}', matrix.stability) || '' }}"
 
