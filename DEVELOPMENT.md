@@ -23,10 +23,10 @@ composer test-coverage
 ### Static Analysis & Code Quality
 
 ```bash
-# Static analysis (PHPStan Level 8) - Default for Symfony 7.4+
+# Static analysis (PHPStan Level 8) - For Symfony 7.4+ / 8.0
 composer analyse
 
-# Static analysis without baseline (Symfony < 7.4)
+# Static analysis for Symfony 6.4 / 7.0-7.3
 composer analyse-legacy
 
 # Code style check (Symfony standards)
@@ -112,7 +112,7 @@ vendor/bin/phpunit tests/Integration/ --testdox
 2. Create feature branch (`git checkout -b feature/name`)
 3. Make changes with tests
 4. Run test suite (`composer test-all`)
-5. Check code quality (`composer analyse && composer cs` or `composer analyse-legacy && composer cs` for Symfony < 7.4)
+5. Check code quality (`composer analyse && composer cs`)
 6. Commit changes (`git commit -m 'Add feature'`)
 7. Push to branch (`git push origin feature/name`)
 8. Open Pull Request

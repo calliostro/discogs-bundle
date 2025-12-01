@@ -211,6 +211,15 @@ calliostro_discogs:
 - **Anonymous access:** Use 25/min (as shown above)
 - **Authenticated only:** Change limit to 60 for maximum performance
 
+The bundle uses a Guzzle middleware that automatically handles rate limiting by:
+
+- Intercepting outgoing requests before they're sent
+- Checking rate limit availability using Symfony's RateLimiter
+- Automatically waiting when limits are exceeded (using microsecond precision)
+- Retrying requests after the appropriate delay
+
+This seamless integration ensures your application never exceeds API limits without requiring any code changes. Higher rates may result in HTTP 429 responses if rate limiting is not configured.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please see [DEVELOPMENT.md](DEVELOPMENT.md) for detailed setup instructions, testing guide, and development workflow.

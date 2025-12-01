@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * Mock OAuth token for testing purposes.
  */
-final class MockOAuthToken implements TokenInterface
+final class MockOAuthToken implements \Stringable, TokenInterface
 {
     /**
      * @param array<string, string> $rawTokenData
