@@ -39,9 +39,6 @@
         "phpstan/phpstan": "^2.1",
         "friendsofphp/php-cs-fixer": "^3.87",
         "symfony/rate-limiter": "^6.4|^7.0|^8.0",
-        "symfony/config": "^6.4|^7.0|^8.0",
-        "symfony/dependency-injection": "^6.4|^7.0|^8.0",
-        "symfony/http-kernel": "^6.4|^7.0|^8.0",
         "symfony/security-core": "^6.4|^7.0|^8.0"
     },
     "autoload": {
