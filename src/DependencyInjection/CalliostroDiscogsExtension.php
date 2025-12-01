@@ -1,20 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Calliostro\DiscogsBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * This is the class that loads and manages your bundle configuration.
- *
- * To learn more, see {@link https://symfony.com/doc/current/cookbook/bundles/extension.html}
- */
 final class CalliostroDiscogsExtension extends Extension
 {
+    public function getAlias(): string
+    {
+        return 'calliostro_discogs';
+    }
+
     /**
      * @throws \Exception When the XML service configuration file cannot be loaded
      */
@@ -23,65 +25,100 @@ final class CalliostroDiscogsExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.xml');
+        // Load services configuration
+        $this->loadServices($container);        // Configure client based on authentication method
+        $this->configureClient($container, $config);
+    }
 
-        $params = [
-            'headers' => ['User-Agent' => $config['user_agent']],
-        ];
-
-        $this->configureThrottling($container, $config, $params);
-        $this->configureOAuth($container, $config, $params, $loader);
-
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function configureClient(ContainerBuilder $container, array $config): void
+    {
         $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
-        $clientDefinition->replaceArgument(0, $params);
+
+        // Create a factory service that will handle validation at runtime
+        $factoryDefinition = $container->register('calliostro_discogs.client_factory', 'Calliostro\\DiscogsBundle\\DependencyInjection\\DiscogsClientFactory');
+
+        // Set the client to use our custom factory
+        $clientDefinition->setFactory([new Reference('calliostro_discogs.client_factory'), 'createClient']);
+        $clientDefinition->setArguments([
+            $config['personal_access_token'] ?? null,
+            $config['consumer_key'] ?? null,
+            $config['consumer_secret'] ?? null,
+            $this->getClientOptions($container, $config),
+        ]);
     }
 
     /**
      * @param array<string, mixed> $config
-     * @param array<string, mixed> $params
-     */
-    private function configureThrottling(ContainerBuilder $container, array $config, array &$params): void
-    {
-        if (!$config['throttle']['enabled']) {
-            return;
-        }
-
-        $throttleDefinition = $container->getDefinition('calliostro_discogs.throttle_subscriber');
-        $throttleDefinition->replaceArgument(0, $config['throttle']['microseconds']);
-
-        $throttleHandlerDefinition = $container->getDefinition('calliostro_discogs.throttle_handler_stack');
-        $throttleHandlerDefinition->replaceArgument(0, new Reference('calliostro_discogs.throttle_subscriber'));
-
-        $params['handler'] = new Reference('calliostro_discogs.throttle_handler_stack');
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     * @param array<string, mixed> $params
      *
-     * @throws \Exception When OAuth service configuration file cannot be loaded
+     * @return array<string, mixed>
      */
-    private function configureOAuth(ContainerBuilder $container, array $config, array &$params, Loader\XmlFileLoader $loader): void
+    private function getClientOptions(ContainerBuilder $container, array $config): array
     {
-        if ($config['oauth']['enabled']) {
-            $loader->load('oauth.xml');
+        $options = [];
 
-            $subscriber = $container->getDefinition('calliostro_discogs.subscriber.oauth');
-            $subscriber->replaceArgument(0, new Reference($config['oauth']['token_provider']));
-            $subscriber->replaceArgument(1, $config['consumer_key']);
-            $subscriber->replaceArgument(2, $config['consumer_secret']);
-
-            $oauthHandlerDefinition = $container->getDefinition('calliostro_discogs.oauth_handler_stack');
-            $oauthHandlerDefinition->replaceArgument(0, new Reference('calliostro_discogs.subscriber.oauth'));
-
-            $params['handler'] = new Reference('calliostro_discogs.oauth_handler_stack');
-        } elseif (isset($config['consumer_key'], $config['consumer_secret'])) {
-            $params['headers']['Authorization'] = \sprintf(
-                'Discogs key=%s, secret=%s',
-                $config['consumer_key'],
-                $config['consumer_secret'],
-            );
+        // Only set the User-Agent header if explicitly configured
+        if (!empty($config['user_agent'])) {
+            $options['headers'] = ['User-Agent' => $config['user_agent']];
         }
+
+        // Configure rate limiting if requested
+        if (!empty($config['rate_limiter'])) {
+            $this->configureSymfonyRateLimiter($container, $config['rate_limiter'], $options);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Configure Symfony Rate Limiter integration.
+     *
+     * @param array<string, mixed> &$options
+     */
+    private function configureSymfonyRateLimiter(ContainerBuilder $container, string $rateLimiterService, array &$options): void
+    {
+        // Check if the symfony/rate-limiter component is available
+        if (!$this->isRateLimiterAvailable()) {
+            throw new \LogicException('To use the rate_limiter configuration, you must install symfony/rate-limiter. Run: composer require symfony/rate-limiter');
+        }
+
+        // Create the rate limiter middleware service
+        $middlewareDefinition = $container->register('calliostro_discogs.rate_limiter_middleware', 'Calliostro\\DiscogsBundle\\Middleware\\RateLimiterMiddleware');
+        $middlewareDefinition->setArguments([
+            new Reference($rateLimiterService),
+            'discogs_api', // Default limiter key
+        ]);
+
+        // Create a handler stack with the rate limiter middleware
+        $handlerDefinition = $container->register('calliostro_discogs.rate_limiter_handler_stack', 'GuzzleHttp\\HandlerStack');
+        $handlerDefinition->setFactory(['GuzzleHttp\\HandlerStack', 'create']);
+        $handlerDefinition->addMethodCall('push', [
+            new Reference('calliostro_discogs.rate_limiter_middleware'),
+            'rate_limiter',
+        ]);
+
+        $options['handler'] = new Reference('calliostro_discogs.rate_limiter_handler_stack');
+    }
+
+    /**
+     * Load service configuration files.
+     * Uses PHP configuration for all Symfony versions (4.2+) for consistency and future-proofing.
+     */
+    private function loadServices(ContainerBuilder $container): void
+    {
+        $fileLocator = new FileLocator(__DIR__.'/../Resources/config');
+        $loader = new PhpFileLoader($container, $fileLocator);
+        $loader->load('services.php');
+    }
+
+    /**
+     * Check if the symfony/rate-limiter component is available.
+     * This method is protected to allow testing.
+     */
+    protected function isRateLimiterAvailable(): bool
+    {
+        return class_exists('Symfony\\Component\\RateLimiter\\RateLimiterFactory');
     }
 }

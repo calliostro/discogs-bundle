@@ -1,6 +1,6 @@
 <?php
 
-namespace Calliostro\DiscogsBundle\Tests;
+namespace Calliostro\DiscogsBundle\Tests\Unit;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -8,12 +8,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * Mock OAuth token for testing purposes.
  */
-final class MockOAuthToken implements TokenInterface
+final class MockOAuthToken implements \Stringable, TokenInterface
 {
     /**
      * @param array<string, string> $rawTokenData
      */
-    public function __construct(private array $rawTokenData = [])
+    public function __construct(private readonly array $rawTokenData = [])
     {
     }
 

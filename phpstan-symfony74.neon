@@ -1,8 +1,0 @@
-parameters:
-    level: 8
-    paths:
-        - src
-    ignoreErrors:
-        -
-            identifier: missingType.generics
-            path: src/DependencyInjection/Configuration.php
