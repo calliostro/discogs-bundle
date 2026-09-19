@@ -27,7 +27,6 @@ coverage.clover export-ignore
 coverage.xml export-ignore
 DEVELOPMENT.md export-ignore
 phpstan.neon.dist export-ignore
-phpstan/ export-ignore
 phpunit.xml* export-ignore
 tests/ export-ignore
 var/ export-ignore

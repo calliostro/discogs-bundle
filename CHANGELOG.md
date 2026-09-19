@@ -18,11 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated GitHub Actions runners to `ubuntu-24.04` and modernized action versions to Node 24 compatible runners.
 - Overhauled README and documentation tone, adopting native GitHub Markdown alerts, backtick method formatting, and sister bundle links.
-- Set PHP 8.1.0 platform requirement in `composer.json` for deterministic dependency resolution.
-
-### Fixed
-
-- Ensured 100% unit test coverage for new configuration and extension options.
 
 ## [4.0.0](https://github.com/calliostro/discogs-bundle/releases/tag/v4.0.0) – 2025-12-01
 
