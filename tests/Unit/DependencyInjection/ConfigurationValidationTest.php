@@ -93,12 +93,40 @@ final class ConfigurationValidationTest extends TestCase
         $this->processor->processConfiguration($this->configuration, $configs);
     }
 
+    public function testMaxRetriesBelowMinFails(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $configs = [
+            [
+                'max_retries' => -1,
+            ],
+        ];
+
+        $this->processor->processConfiguration($this->configuration, $configs);
+    }
+
+    public function testMaxRetriesAboveMaxFails(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $configs = [
+            [
+                'max_retries' => 11,
+            ],
+        ];
+
+        $this->processor->processConfiguration($this->configuration, $configs);
+    }
+
     public function testValidConfiguration(): void
     {
         $configs = [
             [
                 'personal_access_token' => 'BillieEilishFan2024Token123456789',
                 'user_agent' => 'MyMusicApp/2.0 +https://example.com',
+                'auto_retry' => true,
+                'max_retries' => 5,
             ],
         ];
 
@@ -106,6 +134,8 @@ final class ConfigurationValidationTest extends TestCase
 
         $this->assertEquals('BillieEilishFan2024Token123456789', $config['personal_access_token']);
         $this->assertEquals('MyMusicApp/2.0 +https://example.com', $config['user_agent']);
+        $this->assertTrue($config['auto_retry']);
+        $this->assertSame(5, $config['max_retries']);
     }
 
     public function testEnvironmentVariableSyntaxAllowed(): void

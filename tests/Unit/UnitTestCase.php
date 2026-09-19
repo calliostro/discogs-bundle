@@ -29,6 +29,8 @@ abstract class UnitTestCase extends TestCase
 
     /**
      * Assert that a service has the expected type.
+     *
+     * @param class-string<object> $expectedClass
      */
     protected function assertServiceInstanceOf(ContainerInterface $container, string $serviceId, string $expectedClass): void
     {
@@ -78,7 +80,7 @@ abstract class UnitTestCase extends TestCase
     /**
      * Assert definition argument has expected value.
      */
-    protected function assertDefinitionArgumentEquals(ContainerBuilder $container, string $serviceId, int $argumentIndex, $expectedValue): void
+    protected function assertDefinitionArgumentEquals(ContainerBuilder $container, string $serviceId, int $argumentIndex, mixed $expectedValue): void
     {
         $this->assertDefinitionExists($container, $serviceId);
         $definition = $container->getDefinition($serviceId);

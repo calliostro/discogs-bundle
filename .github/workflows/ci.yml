@@ -7,7 +7,7 @@ on:
       - 'legacy/*'      # Legacy branches: legacy/v3.x
       - 'feature/*'     # Feature branches: feature/new-feature
       - 'hotfix/*'      # Hotfix branches: hotfix/urgent-fix
-      - 'release/*'     # Release branches: release/v4.0.0
+      - 'release/*'     # Release branches: release/v4.1.0
   pull_request:
     branches:
       - 'main'
@@ -16,13 +16,16 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
       matrix:
         include:
           # Symfony 6.4 LTS compatibility
+          - php: '8.1'
+            symfony-version: '6.4.*'
+            allowed-to-fail: false
           - php: '8.2'
             symfony-version: '6.4.*'
             allowed-to-fail: false
@@ -63,17 +66,47 @@ jobs:
           - php: '8.4'
             symfony-version: '8.0.*'
             allowed-to-fail: false
-
-          # PHP 8.5 with various Symfony versions
-          - php: '8.5'
-            symfony-version: '7.3.*'
-            allowed-to-fail: false
-          - php: '8.5'
-            symfony-version: '7.4.*'
-            allowed-to-fail: false
           - php: '8.5'
             symfony-version: '8.0.*'
             allowed-to-fail: false
+
+          # Symfony 8.1
+          - php: '8.4'
+            symfony-version: '8.1.*'
+            allowed-to-fail: false
+          - php: '8.5'
+            symfony-version: '8.1.*'
+            allowed-to-fail: false
+
+          # Symfony 8.2 (development / pre-release)
+          - php: '8.4'
+            symfony-version: '8.2.*'
+            allowed-to-fail: true
+          - php: '8.5'
+            symfony-version: '8.2.*'
+            allowed-to-fail: true
+
+          # PHP 8.6 (beta / experimental)
+          - php: '8.6'
+            symfony-version: '8.0.*'
+            allowed-to-fail: true
+          - php: '8.6'
+            symfony-version: '8.1.*'
+            allowed-to-fail: true
+          - php: '8.6'
+            symfony-version: '8.2.*'
+            allowed-to-fail: true
+
+          # Development stability tests
+          - php: '8.4'
+            stability: 'dev'
+            allowed-to-fail: true
+          - php: '8.5'
+            stability: 'dev'
+            allowed-to-fail: true
+          - php: '8.6'
+            stability: 'dev'
+            allowed-to-fail: true
 
     name: "PHP ${{ matrix.php }}${{ matrix.symfony-version && format(' | Symfony {0}', matrix.symfony-version) || '' }}${{ matrix.stability && format(' | {0}', matrix.stability) || '' }}"
 
@@ -81,7 +114,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -96,7 +129,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
@@ -136,35 +169,22 @@ jobs:
         run: composer cs
 
       - name: Run static analysis
-        run: |
-          if [[ "${{ matrix.symfony-version }}" == "8.0.*" ]]; then
-            # Symfony 8.0: Use specific baseline for remaining issues
-            vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony8-baseline.neon
-          elif [[ "${{ matrix.symfony-version }}" == "7.4.*" ]]; then
-            # Symfony 7.4 LTS: Functionally identical to 8.0, needs same baseline
-            vendor/bin/phpstan analyse src --level=8 --configuration phpstan/symfony74-baseline.neon
-          elif [[ "${{ matrix.symfony-version }}" == "6.4.*" || "${{ matrix.symfony-version }}" == "7.0.*" || "${{ matrix.symfony-version }}" == "7.1.*" || "${{ matrix.symfony-version }}" == "7.2.*" || "${{ matrix.symfony-version }}" == "7.3.*" ]]; then
-            # Older Symfony versions 6.4-7.3: Use legacy baseline for children() issue
-            composer analyse-legacy
-          else
-            # Future versions: Try without baseline first
-            composer analyse
-          fi
+        run: composer analyse -- --memory-limit=1G
 
       - name: Run tests
         run: composer test
         env:
-            DISCOGS_CONSUMER_KEY: ${{ secrets.DISCOGS_CONSUMER_KEY }}
-            DISCOGS_CONSUMER_SECRET: ${{ secrets.DISCOGS_CONSUMER_SECRET }}
-            DISCOGS_PERSONAL_ACCESS_TOKEN: ${{ secrets.DISCOGS_PERSONAL_ACCESS_TOKEN }}
+          DISCOGS_CONSUMER_KEY: ${{ secrets.DISCOGS_CONSUMER_KEY }}
+          DISCOGS_CONSUMER_SECRET: ${{ secrets.DISCOGS_CONSUMER_SECRET }}
+          DISCOGS_PERSONAL_ACCESS_TOKEN: ${{ secrets.DISCOGS_PERSONAL_ACCESS_TOKEN }}
 
   code-quality:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Code Quality Checks
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -179,7 +199,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
@@ -197,12 +217,12 @@ jobs:
           fi
 
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Code Coverage
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -217,7 +237,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
@@ -229,12 +249,12 @@ jobs:
       - name: Run tests with coverage
         run: composer test-coverage
         env:
-            DISCOGS_CONSUMER_KEY: ${{ secrets.DISCOGS_CONSUMER_KEY }}
-            DISCOGS_CONSUMER_SECRET: ${{ secrets.DISCOGS_CONSUMER_SECRET }}
-            DISCOGS_PERSONAL_ACCESS_TOKEN: ${{ secrets.DISCOGS_PERSONAL_ACCESS_TOKEN }}
+          DISCOGS_CONSUMER_KEY: ${{ secrets.DISCOGS_CONSUMER_KEY }}
+          DISCOGS_CONSUMER_SECRET: ${{ secrets.DISCOGS_CONSUMER_SECRET }}
+          DISCOGS_PERSONAL_ACCESS_TOKEN: ${{ secrets.DISCOGS_PERSONAL_ACCESS_TOKEN }}
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           file: ./coverage.xml
           flags: unittests

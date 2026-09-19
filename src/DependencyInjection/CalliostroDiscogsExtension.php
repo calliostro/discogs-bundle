@@ -26,7 +26,9 @@ final class CalliostroDiscogsExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         // Load services configuration
-        $this->loadServices($container);        // Configure client based on authentication method
+        $this->loadServices($container);
+
+        // Configure client based on authentication method
         $this->configureClient($container, $config);
     }
 
@@ -38,7 +40,7 @@ final class CalliostroDiscogsExtension extends Extension
         $clientDefinition = $container->getDefinition('calliostro_discogs.discogs_client');
 
         // Create a factory service that will handle validation at runtime
-        $factoryDefinition = $container->register('calliostro_discogs.client_factory', 'Calliostro\\DiscogsBundle\\DependencyInjection\\DiscogsClientFactory');
+        $container->register('calliostro_discogs.client_factory', DiscogsClientFactory::class);
 
         // Set the client to use our custom factory
         $clientDefinition->setFactory([new Reference('calliostro_discogs.client_factory'), 'createClient']);
@@ -62,6 +64,14 @@ final class CalliostroDiscogsExtension extends Extension
         // Only set the User-Agent header if explicitly configured
         if (!empty($config['user_agent'])) {
             $options['headers'] = ['User-Agent' => $config['user_agent']];
+        }
+
+        if (isset($config['auto_retry'])) {
+            $options['auto_retry'] = $config['auto_retry'];
+        }
+
+        if (isset($config['max_retries'])) {
+            $options['max_retries'] = $config['max_retries'];
         }
 
         // Configure rate limiting if requested
@@ -108,7 +118,7 @@ final class CalliostroDiscogsExtension extends Extension
      */
     private function loadServices(ContainerBuilder $container): void
     {
-        $fileLocator = new FileLocator(__DIR__.'/../Resources/config');
+        $fileLocator = new FileLocator(__DIR__ . '/../Resources/config');
         $loader = new PhpFileLoader($container, $fileLocator);
         $loader->load('services.php');
     }

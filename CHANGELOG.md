@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0](https://github.com/calliostro/discogs-bundle/releases/tag/v4.1.0) – 2026-09-19
+
+### Added
+
+- Upgraded dependency to `calliostro/php-discogs-api` v4.1 with built-in retry resilience on Discogs rate limits (`429`) and server overload (`503`).
+- Added `auto_retry` (default `true`) and `max_retries` (default `3`) configuration options in `calliostro_discogs`.
+- Compatibility testing and CI matrix coverage for PHP 8.1–8.6 and Symfony 6.4 LTS, 7.x, 8.0, 8.1, and 8.2.
+- Created root `phpstan.neon.dist` (Level 8) and migrated `.php-cs-fixer.php` to `.php-cs-fixer.dist.php`.
+
+### Changed
+
+- Updated GitHub Actions runners to `ubuntu-24.04` and modernized action versions to Node 24 compatible runners.
+- Overhauled README and documentation tone, adopting native GitHub Markdown alerts, backtick method formatting, and sister bundle links.
+- Set PHP 8.1.0 platform requirement in `composer.json` for deterministic dependency resolution.
+
+### Fixed
+
+- Ensured 100% unit test coverage for new configuration and extension options.
+
 ## [4.0.0](https://github.com/calliostro/discogs-bundle/releases/tag/v4.0.0) – 2025-12-01
 
 ### 🚀 Complete Rewrite — Fresh Start
