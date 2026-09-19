@@ -11,7 +11,7 @@
 
 A Symfony bundle integrating [`calliostro/php-discogs-api`](https://github.com/calliostro/php-discogs-api) into your Symfony application. Provides dependency injection, autowiring, built-in retry resilience, and optional rate limiting for PHP 8.1+ and Symfony 6.4, 7.x, and 8.x.
 
-## Installation
+## 📦 Installation
 
 Install via Composer:
 
@@ -19,7 +19,9 @@ Install via Composer:
 composer require calliostro/discogs-bundle
 ```
 
-## Configuration
+---
+
+## ⚙️ Configuration
 
 Configure the bundle in `config/packages/calliostro_discogs.yaml`:
 
@@ -52,7 +54,9 @@ calliostro_discogs:
 - **Consumer Credentials:** For OAuth applications, register your application on Discogs to obtain your `consumer_key` and `consumer_secret`.
 - **Anonymous Access:** If no credentials are configured, the bundle initializes the client for public data endpoints (subject to unauthenticated rate limits of 25 requests/min).
 
-## Quick Start
+---
+
+## 🚀 Quick Start
 
 ### Basic Usage
 
@@ -115,7 +119,9 @@ $master = $client->getMaster(masterId: 2835729);
 $label = $client->getLabel(labelId: 12677);
 ```
 
-## Key Features
+---
+
+## ✨ Key Features
 
 - **Lightweight Integration** – Minimal footprint with zero overhead on top of `calliostro/php-discogs-api`.
 - **Complete API Coverage** – All 60 Discogs API endpoints supported.
@@ -125,7 +131,9 @@ $label = $client->getLabel(labelId: 12677);
 - **Symfony Native** – Autowiring support for Symfony 6.4, 7.x, and 8.x.
 - **Multiple Authentication Methods** – Personal Access Token, OAuth 1.0a, Consumer Credentials, and Anonymous access.
 
-## Supported Discogs API Methods
+---
+
+## 🎵 All Discogs API Methods as Direct Calls
 
 - **Database Methods** – `search()`, `getArtist()`, `listArtistReleases()`, `getRelease()`, `getUserReleaseRating()`, `updateUserReleaseRating()`, `deleteUserReleaseRating()`, `getCommunityReleaseRating()`, `getReleaseStats()`, `getMaster()`, `listMasterVersions()`, `getLabel()`, `listLabelReleases()`
 - **User Identity Methods** – `getIdentity()`, `getUser()`, `updateUser()`, `listUserSubmissions()`, `listUserContributions()`
@@ -139,19 +147,23 @@ $label = $client->getLabel(labelId: 12677);
 > [!NOTE]
 > Complete method documentation and endpoint parameters can be found in the [Discogs API Documentation](https://www.discogs.com/developers/).
 
-## Requirements
+---
+
+## 📋 Requirements
 
 - **PHP** `^8.1` (tested on PHP 8.1–8.6)
 - **Symfony** `^6.4 || ^7.0 || ^8.0`
 - **calliostro/php-discogs-api** `^4.1`
 
-## Resilience & Rate Limiting
+---
+
+## ⚡ Resilience & Rate Limiting
 
 ### Built-in Retries (Reactive)
 
 Out of the box, `calliostro/php-discogs-api` v4.1 automatically handles rate limit responses (`429 Too Many Requests`) and temporary service downtime (`503 Service Unavailable`). When triggered, the client sleeps for the duration requested by Discogs (via the `Retry-After` header) or uses exponential backoff before retrying the request.
 
-You can configure or disable this behavior in `config/packages/calliostro_discogs.yaml`:
+You can customize or disable this behavior in `config/packages/calliostro_discogs.yaml`:
 
 ```yaml
 calliostro_discogs:
@@ -187,9 +199,17 @@ calliostro_discogs:
     rate_limiter: discogs_api
 ```
 
-## Contributing
+---
 
-Contributions are welcome! Please ensure that all tests pass and code quality checks succeed:
+## 🧪 Development & Testing Guide
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed setup instructions, test suite commands, static analysis, and contribution guidelines.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please ensure that all tests pass and coding standards are maintained:
 
 ```bash
 composer cs-fix
@@ -197,15 +217,21 @@ composer analyse
 composer test
 ```
 
-## License
+---
+
+## 📄 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
-## Disclaimer
+---
+
+## ⚖️ Disclaimer
 
 Discogs is a registered trademark of Zink Media, LLC. This project is an independent, unofficial open-source library and is not affiliated with, endorsed by, or sponsored by Discogs or Zink Media, LLC.
 
-## Acknowledgments
+---
+
+## 🙏 Acknowledgments
 
 - [Discogs](https://www.discogs.com/) for providing the database and API.
 - [Symfony](https://symfony.com) for the web framework and dependency injection container.
