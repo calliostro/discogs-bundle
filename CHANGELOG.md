@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `auto_retry` (default `true`) and `max_retries` (default `3`) configuration options in `calliostro_discogs`.
 - Compatibility testing and CI matrix coverage for PHP 8.1–8.6 and Symfony 6.4 LTS, 7.x, 8.0, 8.1, and 8.2.
 - Created root `phpstan.neon.dist` (Level 8) and migrated `.php-cs-fixer.php` to `.php-cs-fixer.dist.php`.
+- Added unit tests for new retry configuration and extension options maintaining 100% code coverage.
 
 ### Changed
 
