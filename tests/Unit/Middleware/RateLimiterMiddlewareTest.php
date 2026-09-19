@@ -105,7 +105,9 @@ final class RateLimiterMiddlewareTest extends UnitTestCase
         $this->assertTrue(\is_callable($middleware));
 
         // Test that calling it returns another callable
-        $handler = function () { return 'test'; };
+        $handler = function () {
+            return 'test';
+        };
         $wrappedHandler = $middleware($handler);
 
         $this->assertTrue(\is_callable($wrappedHandler));

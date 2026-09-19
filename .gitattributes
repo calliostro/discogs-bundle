@@ -18,7 +18,7 @@
 .github/ export-ignore
 .gitignore export-ignore
 .markdownlint.json export-ignore
-.php-cs-fixer.php export-ignore
+.php-cs-fixer.* export-ignore
 .phpstan/ export-ignore
 .phpunit.* export-ignore
 codecov.yml export-ignore
@@ -26,7 +26,7 @@ coverage/ export-ignore
 coverage.clover export-ignore
 coverage.xml export-ignore
 DEVELOPMENT.md export-ignore
-phpstan/ export-ignore
+phpstan.neon.dist export-ignore
 phpunit.xml* export-ignore
 tests/ export-ignore
 var/ export-ignore

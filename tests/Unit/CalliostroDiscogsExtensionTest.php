@@ -97,6 +97,7 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
         $this->assertTrue($container->hasDefinition('calliostro_discogs.client_factory'));
         $definition = $container->getDefinition('calliostro_discogs.discogs_client');
         $factory = $definition->getFactory();
+        $this->assertIsArray($factory);
         $this->assertEquals('createClient', $factory[1]);
         $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 4);
         // Check that consumer credentials are at the correct positions
@@ -117,6 +118,7 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
         $this->assertTrue($container->hasDefinition('calliostro_discogs.client_factory'));
         $definition = $container->getDefinition('calliostro_discogs.discogs_client');
         $factory = $definition->getFactory();
+        $this->assertIsArray($factory);
         $this->assertEquals('createClient', $factory[1]);
     }
 
@@ -137,6 +139,7 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
         $this->assertTrue($container->hasDefinition('calliostro_discogs.client_factory'));
         $definition = $container->getDefinition('calliostro_discogs.discogs_client');
         $factory = $definition->getFactory();
+        $this->assertIsArray($factory);
         $this->assertEquals('createClient', $factory[1]);
         $this->assertDefinitionArgumentCount($container, 'calliostro_discogs.discogs_client', 4);
         $this->assertDefinitionArgumentEquals($container, 'calliostro_discogs.discogs_client', 0, 'test_token_123');
@@ -159,6 +162,7 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
         $this->assertTrue($container->hasDefinition('calliostro_discogs.client_factory'));
         $definition = $container->getDefinition('calliostro_discogs.discogs_client');
         $factory = $definition->getFactory();
+        $this->assertIsArray($factory);
         $this->assertEquals('createClient', $factory[1]);
         $arguments = $definition->getArguments();
         $options = $arguments[3]; // Options are at index 3
@@ -189,8 +193,33 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
         $definition = $container->getDefinition('calliostro_discogs.discogs_client');
         $arguments = $definition->getArguments();
         $options = $arguments[3]; // Options are now at index 3
+        $this->assertIsArray($options);
         $this->assertArrayHasKey('headers', $options);
         $this->assertEquals('TestApp/1.0', $options['headers']['User-Agent']);
+    }
+
+    public function testLoadWithRetryOptions(): void
+    {
+        $container = $this->createContainerBuilder();
+        $extension = new CalliostroDiscogsExtension();
+
+        $config = [
+            [
+                'auto_retry' => false,
+                'max_retries' => 5,
+            ],
+        ];
+
+        $extension->load($config, $container);
+
+        $definition = $container->getDefinition('calliostro_discogs.discogs_client');
+        $arguments = $definition->getArguments();
+        $options = $arguments[3];
+        $this->assertIsArray($options);
+        $this->assertArrayHasKey('auto_retry', $options);
+        $this->assertFalse($options['auto_retry']);
+        $this->assertArrayHasKey('max_retries', $options);
+        $this->assertSame(5, $options['max_retries']);
     }
 
     public function testRateLimiterIntegration(): void
@@ -218,6 +247,7 @@ final class CalliostroDiscogsExtensionTest extends UnitTestCase
         $definition = $container->getDefinition('calliostro_discogs.discogs_client');
         $arguments = $definition->getArguments();
         $options = $arguments[3] ?? []; // Fourth argument is now the options array
+        $this->assertIsArray($options);
 
         // Should have handler option pointing to rate limiter stack
         $this->assertArrayHasKey('handler', $options);
